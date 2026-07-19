@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pawsport Concierge — Fly with your pet. We handle everything else.</title>
+<meta name="description" content="Done-for-you pet travel documentation. Health certificates, USDA endorsements, airline approvals and country requirements — handled by your named concierge in Miami.">
+
+<!-- Open Graph / social sharing. Replace og:image with an absolute URL after hosting. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.pawsportconcierge.com/">
+<meta property="og:title" content="Pawsport Concierge — You just show up at the airport.">
+<meta property="og:description" content="Every document your pet needs to fly, handled by a named concierge. Miami-based, worldwide routes.">
+<meta property="og:image" content="https://www.pawsportconcierge.com/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%2314213D'/%3E%3Ccircle cx='50' cy='50' r='38' fill='none' stroke='%23F4EFE6' stroke-width='4'/%3E%3Ctext x='50' y='63' text-anchor='middle' font-family='Georgia,serif' font-size='34' fill='%23F4EFE6'%3EPC%3C/text%3E%3C/svg%3E">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Pawsport Concierge",
+  "description": "Done-for-you pet travel documentation service",
+  "url": "https://www.pawsportconcierge.com",
+  "telephone": "+1-305-964-0956",
+  "email": "hello@pawsportconcierge.com",
+  "address": {"@type": "PostalAddress", "addressLocality": "Miami", "addressRegion": "FL", "addressCountry": "US"},
+  "areaServed": ["United States", "Europe", "Latin America"]
+}
+</script>
+
+<!-- Google Tag Manager: paste your container snippet here and set GTM_ID below.
+<script>(function(w,d,s,l,i){...})(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+-->
+<script>window.dataLayer = window.dataLayer || [];</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --navy:#14213D; --navy-deep:#0D1730; --cream:#F4EFE6; --paper:#FBF8F2;
+  --camel:#C2A878; --camel-soft:#D8C9AC; --oxblood:#7D1D2E; --ink:#1C1C1C;
+  --muted:#5F5E5A; --line:#E3DCCC; --navy-line:#2A3A5E; --ok:#3B6D11;
+  --serif:'Newsreader',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{font-family:var(--sans);color:var(--ink);background:var(--cream);font-size:16px;line-height:1.6}
+img{max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--camel);outline-offset:3px}
+.wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono)}
+
+/* ---------- header ---------- */
+header{background:var(--navy);color:var(--cream)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:16px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand svg{flex:none}
+.brand-name{font-family:var(--serif);font-size:20px;letter-spacing:.2px}
+.desk{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.6px;color:#AEB6C8}
+.desk-dot{width:7px;height:7px;border-radius:50%;background:#7BAE5C;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.desk-dot{animation:none}}
+.nav-right{display:flex;align-items:center;gap:20px}
+.btn{display:inline-block;font-family:var(--sans);font-weight:500;font-size:14px;padding:11px 20px;border-radius:3px;border:1px solid var(--camel);color:var(--navy);background:var(--camel);text-decoration:none;cursor:pointer;transition:background .15s,color .15s}
+.btn:hover{background:var(--camel-soft)}
+.btn-ghost{background:transparent;color:var(--camel)}
+.btn-ghost:hover{background:rgba(194,168,120,.12)}
+
+/* ---------- hero ---------- */
+.hero{background:var(--navy);color:var(--cream);padding:60px 0 92px;position:relative;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1fr 460px;gap:60px;align-items:start}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--camel);text-transform:uppercase;margin-bottom:24px}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(46px,6.2vw,84px);line-height:.97;letter-spacing:-1.5px;max-width:13ch}
+.hero p.lead{margin-top:24px;font-size:17px;line-height:1.65;color:#C4CBDA;max-width:46ch}
+.route-pills{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px}
+.route-pills span{font-family:var(--mono);font-size:11.5px;letter-spacing:1px;color:#AEB6C8;border:1px solid var(--navy-line);border-radius:999px;padding:7px 14px}
+.hero-lower{margin-top:40px;display:grid;grid-template-columns:230px 1fr;gap:32px;align-items:center}
+.hero-points{display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--navy-line);padding-left:20px}
+.hero-points div{font-size:14.5px;color:#AEB6C8}
+.hero-points strong{color:var(--cream);font-weight:500}
+.passport{background:var(--paper);border-radius:4px;padding:10px 10px 0;transform:rotate(-2.5deg);box-shadow:0 18px 44px rgba(0,0,0,.4);position:relative;width:230px}
+.passport img{display:block;width:100%;height:210px;object-fit:cover;border-radius:2px;border:1px solid var(--line)}
+.passport figcaption{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;color:var(--muted);padding:9px 2px 10px;display:flex;justify-content:space-between}
+.passport .mini-stamp{position:absolute;top:-16px;right:-16px;transform:rotate(10deg)}
+.hero-stamp{position:absolute;left:-60px;bottom:-90px;opacity:.07;pointer-events:none}
+
+/* ---------- flight file form ---------- */
+.file{background:var(--paper);color:var(--ink);border-radius:6px;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative}
+.file-head{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--line)}
+.file-head span{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--muted)}
+.file-head b{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--oxblood);font-weight:500}
+.file-body{padding:24px}
+.perf{border-top:2px dashed var(--line);position:relative;margin:0 24px}
+.perf::before,.perf::after{content:"";position:absolute;top:-9px;width:16px;height:16px;border-radius:50%;background:var(--navy)}
+.perf::before{left:-32px}
+.perf::after{right:-32px}
+label,.field-label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+#channel-label{margin-bottom:calc(6px + 0.2cm)}
+.field{margin-bottom:16px;position:relative}
+input[type=text],input[type=tel],input[type=email],input[type=date],select,textarea{
+  width:100%;font-family:var(--sans);font-size:15px;color:var(--ink);
+  padding:11px 12px;border:1px solid var(--line);border-radius:3px;background:#fff;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--camel);outline:none}
+textarea{resize:vertical;min-height:70px}
+.row{display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:end}
+.row .arrow{font-family:var(--mono);text-align:center;padding-bottom:12px;color:var(--camel);font-size:16px}
+.row3{display:grid;grid-template-columns:1.1fr 1.2fr .8fr;gap:10px}
+.leg{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.leg + .leg{margin-top:10px}
+.remove-leg{background:none;border:1px solid var(--line);border-radius:3px;width:32px;height:41px;cursor:pointer;color:var(--muted);font-size:15px;line-height:1}
+.remove-leg:hover{border-color:var(--oxblood);color:var(--oxblood)}
+.leg:first-child .remove-leg{visibility:hidden}
+.add-leg{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
+.add-leg:hover{color:var(--navy)}
+.date-btn{width:100%;text-align:left;font-family:var(--sans);font-size:15px;color:var(--muted);padding:11px 12px;border:1px solid var(--line);border-radius:3px;background:#fff;cursor:pointer;position:relative;transition:border-color .15s}
+.date-btn::after{content:"\25BE";position:absolute;right:12px;color:var(--camel)}
+.date-btn.set{color:var(--ink)}
+.date-btn:hover,.date-btn:focus{border-color:var(--camel);outline:none}
+.date-btn:disabled{opacity:.5;cursor:default}
+.cal{display:none;position:absolute;z-index:20;top:calc(100% + 6px);left:0;width:280px;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:14px}
+.cal.open{display:block}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cal-title{font-family:var(--serif);font-size:16px;color:var(--navy)}
+.cal-nav{background:none;border:1px solid var(--line);border-radius:3px;width:28px;height:28px;cursor:pointer;color:var(--navy);font-size:14px}
+.cal-nav:hover{border-color:var(--camel)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal-dow{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--muted);padding:4px 0}
+.cal-day{border:none;background:none;font-family:var(--sans);font-size:13px;color:var(--ink);padding:7px 0;border-radius:3px;cursor:pointer}
+.cal-day:hover:not(:disabled){background:var(--cream)}
+.cal-day:disabled{color:#C9C2B2;cursor:default}
+.cal-day.today{box-shadow:inset 0 0 0 1px var(--camel)}
+.cal-day.sel{background:var(--navy);color:var(--cream)}
+.check{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--muted)}
+.check input{width:15px;height:15px;accent-color:var(--navy)}
+.channels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.chan{position:relative;display:block;cursor:pointer}
+.chan input{position:absolute;opacity:0;width:1px;height:1px}
+.chan .tile{border:1px solid var(--line);border-radius:3px;background:#fff;padding:10px 4px;text-align:center;font-size:13px;font-weight:500;transition:all .15s;color:var(--muted)}
+.chan:hover .tile{border-color:var(--camel)}
+.chan input:checked + .tile{border-color:var(--navy);background:var(--navy);color:var(--cream)}
+.chan input:focus-visible + .tile{outline:2px solid var(--camel);outline-offset:2px}
+.err-msg{display:none;font-family:var(--sans);font-size:12px;color:var(--oxblood);margin-top:5px;text-transform:none;letter-spacing:0}
+.field.has-error .err-msg{display:block}
+.field.has-error input,.field.has-error select,.field.has-error textarea{border-color:var(--oxblood)}
+.submit{width:100%;margin-top:6px;background:var(--navy);border:1px solid var(--navy);color:var(--cream);font-size:15px;font-weight:500;padding:14px;border-radius:3px;cursor:pointer;transition:background .15s}
+.submit:hover{background:var(--navy-deep)}
+.submit:disabled{opacity:.7;cursor:wait}
+.promise{margin-top:12px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.6px;color:var(--muted)}
+.alt-channel{margin-top:10px;text-align:center;font-size:13px;color:var(--muted)}
+.alt-channel a{color:var(--navy);font-weight:500;text-decoration:underline;text-underline-offset:3px}
+.form-fail{display:none;margin-top:12px;padding:12px;border:1px solid var(--oxblood);border-radius:3px;font-size:13px;color:var(--oxblood);background:#fff}
+
+/* cleared overlay + receipt */
+.cleared{position:absolute;inset:0;background:rgba(251,248,242,.97);border-radius:6px;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;z-index:5;overflow:auto}
+.cleared.show{display:flex}
+.stamp-cleared{transform:rotate(-8deg);border:3px solid var(--oxblood);color:var(--oxblood);font-family:var(--mono);font-weight:500;font-size:24px;letter-spacing:6px;padding:9px 24px;margin-bottom:20px;animation:slam .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes slam{0%{transform:rotate(-8deg) scale(2.4);opacity:0}100%{transform:rotate(-8deg) scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.stamp-cleared{animation:none}}
+.cleared h3{font-family:var(--serif);font-weight:400;font-size:23px;color:var(--navy);margin-bottom:14px}
+.receipt{width:100%;max-width:340px;text-align:left;border-top:1px solid var(--line);margin-bottom:14px}
+.receipt div{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.receipt span{font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase;padding-top:2px}
+.receipt b{font-weight:500;color:var(--navy);text-align:right;max-width:60%}
+.cleared p{font-size:13px;color:var(--muted);max-width:36ch}
+
+/* ---------- trust strip ---------- */
+.trust{border-bottom:1px solid var(--line);padding:26px 0;background:var(--cream)}
+.trust-grid{display:grid;grid-template-columns:1.1fr repeat(3,1fr);gap:22px;align-items:center}
+.trust-intro{font-family:var(--serif);font-size:23px;line-height:1.1;color:var(--navy)}
+.trust-item{padding-left:20px;border-left:1px solid var(--line);font-size:12.5px;line-height:1.55;color:var(--muted)}
+.trust-item strong{display:block;color:var(--navy);font-size:13.5px;font-weight:500;margin-bottom:3px}
+
+/* ---------- sections ---------- */
+section{padding:84px 0}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--oxblood);text-transform:uppercase}
+h2{font-family:var(--serif);font-weight:400;font-size:clamp(30px,3.6vw,42px);color:var(--navy);margin-top:10px;letter-spacing:-.4px;line-height:1.08}
+.scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.scope ul{list-style:none;margin-top:24px}
+.scope li{padding:14px 0;border-bottom:1px solid var(--line);font-size:15px;display:flex;gap:14px}
+.scope li b{font-weight:500;color:var(--navy);min-width:180px}
+.scope li span{color:var(--muted);font-size:14px}
+.quotecard{background:var(--navy);color:var(--cream);border-radius:6px;padding:36px 34px;overflow:hidden}
+.quotecard .photo{margin:-36px -34px 26px;height:150px}
+.quotecard .photo img{width:100%;height:100%;object-fit:cover;display:block;opacity:.85}
+.quotecard p{font-family:var(--serif);font-size:22px;line-height:1.45;font-style:italic}
+.quotecard cite{display:block;margin-top:18px;font-family:var(--mono);font-style:normal;font-size:11px;letter-spacing:2px;color:var(--camel)}
+.quotecard .route{margin-top:28px;padding-top:22px;border-top:1px solid var(--navy-line);font-family:var(--mono);font-size:12px;letter-spacing:1.5px;color:#AEB6C8}
+
+/* fit section */
+.fit{padding-top:0}
+.fit-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.fit-copy{margin-top:18px;color:var(--muted);line-height:1.7;max-width:48ch}
+.fit-list{border-top:1px solid var(--line)}
+.fit-item{padding:20px 0;border-bottom:1px solid var(--line)}
+.fit-item strong{display:block;font-family:var(--serif);font-weight:400;font-size:21px;color:var(--navy);margin-bottom:4px}
+.fit-item p{color:var(--muted);font-size:14px}
+
+/* steps */
+.how{padding-top:0}
+.steps{margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--paper)}
+.step{padding:30px 28px;border-right:1px solid var(--line)}
+.step:last-child{border-right:none}
+.step .tag{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--camel)}
+.step h3{font-family:var(--serif);font-weight:400;font-size:21px;color:var(--navy);margin:12px 0 10px}
+.step p{font-size:14.5px;color:var(--muted)}
+
+/* bottom cta */
+.cta-band{background:var(--navy);color:var(--cream);padding:70px 0}
+.cta-band .inner{display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap}
+.cta-band h2{color:var(--cream);margin:0}
+.cta-band .actions{display:flex;gap:12px;flex-wrap:wrap}
+
+/* footer */
+footer{background:var(--navy-deep);color:#AEB6C8;padding:44px 0}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.foot .mono{font-size:11px;letter-spacing:2px}
+.foot a{text-decoration:none}
+.foot a:hover{color:var(--cream)}
+
+/* sticky mobile cta */
+.sticky-cta{position:fixed;left:0;right:0;bottom:0;z-index:50;display:none;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--navy);box-shadow:0 -8px 24px rgba(0,0,0,.25)}
+.sticky-cta a{flex:1;text-align:center}
+.sticky-cta.visible{display:flex}
+
+@media (max-width:920px){
+  .hero-grid{grid-template-columns:1fr;gap:44px}
+  .hero-lower{grid-template-columns:1fr;gap:36px}
+  .passport{margin:0 auto}
+  .trust-grid{grid-template-columns:1fr 1fr}
+  .trust-intro{grid-column:1/-1}
+  .scope-grid,.fit-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .step{border-right:none;border-bottom:1px solid var(--line)}
+  .step:last-child{border-bottom:none}
+  .row3{grid-template-columns:1fr}
+  .channels{grid-template-columns:repeat(2,1fr)}
+  .desk{display:none}
+  .nav-right .btn-ghost{display:none}
+}
+@media (max-width:640px){
+  .trust-grid{grid-template-columns:1fr}
+  .trust-item{padding-left:0;border-left:none;border-top:1px solid var(--line);padding-top:14px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#">
+      <svg width="40" height="40" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="46" fill="none" stroke="#C2A878" stroke-width="3"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="#C2A878" stroke-width="1"/>
+        <text x="50" y="60" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#F4EFE6">PC</text>
+      </svg>
+      <span class="brand-name">Pawsport Concierge</span>
+    </a>
+    <div class="desk" aria-label="Concierge desk is available 8am to 10pm Eastern Time">
+      <span class="desk-dot" aria-hidden="true"></span>MIAMI DESK · 8AM–10PM ET
+    </div>
+    <nav class="nav-right">
+      <a class="btn btn-ghost" href="tel:+13059640956" data-track="call">(305) 964-0956</a>
+      <a class="btn" href="#request">Request my concierge</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <svg class="hero-stamp" width="420" height="420" viewBox="0 0 100 100" aria-hidden="true">
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#F4EFE6" stroke-width="2"/>
+    <circle cx="50" cy="50" r="38" fill="none" stroke="#F4EFE6" stroke-width=".8"/>
+    <text x="50" y="60" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#F4EFE6">PC</text>
+  </svg>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Pet travel documentation · Done for you</div>
+      <h1>You just show up at the airport.</h1>
+      <p class="lead">Every document between home and boarding — health certificates, USDA endorsements, airline approvals, country requirements — handled by one named concierge. Cabin or hold, international or domestic.</p>
+      <div class="route-pills" aria-label="Example routes">
+        <span>MIA &#8594; MAD</span><span>MIA &#8594; LHR</span><span>JFK &#8594; CDG</span><span>MIA &#8594; MEX</span><span>LAX &#8594; GRU</span>
+      </div>
+      <div class="hero-lower">
+        <figure class="passport">
+          <img src="https://images.squarespace-cdn.com/content/v1/69f280ed7f03ad7b47461601/1777501240818-7WSW5BTF4ACP271SZR7V/unsplash-image-AbNO2iejoXA.jpg" alt="Dog passenger portrait" width="230" height="210">
+          <figcaption><span>PASSENGER No. 0147</span><span>MIA &#8594; MAD</span></figcaption>
+          <svg class="mini-stamp" width="58" height="58" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="46" fill="var(--paper)" stroke="#7D1D2E" stroke-width="4"/>
+            <circle cx="50" cy="50" r="36" fill="none" stroke="#7D1D2E" stroke-width="1.5"/>
+            <text x="50" y="61" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#7D1D2E">PC</text>
+          </svg>
+        </figure>
+        <div class="hero-points">
+          <div><strong>One named concierge</strong> — not a platform, not a ticket queue.</div>
+          <div><strong>Route-specific handling</strong> — requirements mapped to your exact origin, destination and airline.</div>
+          <div><strong>Cleared before boarding</strong> — final confirmation 48 hours before departure.</div>
+        </div>
+      </div>
+    </div>
+
+    <form class="file" id="request" autocomplete="on" novalidate>
+      <div class="file-head">
+        <span>FLIGHT FILE · REQUEST</span>
+        <b>PAWSPORT · MIA</b>
+      </div>
+      <div class="file-body">
+        <div id="legs">
+          <div class="leg">
+            <div class="row">
+              <div class="field" style="margin:0">
+                <label>From</label>
+                <input type="text" class="leg-from" placeholder="Miami" aria-label="Leg 1 departure city" required>
+                <span class="err-msg">Enter the departure city.</span>
+              </div>
+              <div class="arrow" aria-hidden="true">&#8594;</div>
+              <div class="field" style="margin:0">
+                <label>To</label>
+                <input type="text" class="leg-to" placeholder="Madrid" aria-label="Leg 1 destination" required>
+                <span class="err-msg">Enter the destination.</span>
+              </div>
+            </div>
+            <button type="button" class="remove-leg" aria-label="Remove this leg">&#215;</button>
+          </div>
+        </div>
+        <button type="button" class="add-leg" id="add-leg">+ Add leg (round trip or multi-city)</button>
+        <div class="field" style="margin-top:16px">
+          <label id="date-label">Departure date</label>
+          <button type="button" class="date-btn" id="date-btn" aria-haspopup="dialog" aria-expanded="false">Select a date</button>
+          <input type="hidden" id="date" name="date">
+          <div class="cal" id="cal" role="dialog" aria-label="Choose departure date"></div>
+          <div class="check"><input type="checkbox" id="noticket" name="noticket"><label for="noticket" style="margin:0;text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:13px">No ticket yet — planning ahead</label></div>
+          <span class="err-msg">Pick a date or check &#8220;no ticket yet&#8221;.</span>
+        </div>
+        <div class="field">
+          <label>Your pet</label>
+          <div class="row3">
+            <select name="pet" aria-label="Pet type">
+              <option>Dog</option><option>Cat</option><option>Other</option>
+            </select>
+            <input type="text" name="breed" placeholder="Breed" aria-label="Breed">
+            <input type="text" name="weight" placeholder="Weight, lb" aria-label="Weight">
+          </div>
+        </div>
+        <div class="field">
+          <label for="case">Tell us about your situation <span style="opacity:.6">(optional)</span></label>
+          <textarea id="case" name="case" placeholder="Moving to Madrid with two cats, first time flying with pets…"></textarea>
+        </div>
+      </div>
+      <div class="perf" aria-hidden="true"></div>
+      <div class="file-body">
+        <div class="field" role="radiogroup" aria-labelledby="channel-label">
+          <span class="field-label" id="channel-label">Where should your concierge reach you?</span>
+          <div class="channels">
+            <label class="chan"><input type="radio" name="channel" value="iMessage" checked data-ph="Phone number" data-type="tel"><span class="tile">iMessage</span></label>
+            <label class="chan"><input type="radio" name="channel" value="WhatsApp" data-ph="WhatsApp number" data-type="tel"><span class="tile">WhatsApp</span></label>
+            <label class="chan"><input type="radio" name="channel" value="Email" data-ph="Email address" data-type="email"><span class="tile">Email</span></label>
+            <label class="chan"><input type="radio" name="channel" value="Call" data-ph="Phone number" data-type="tel"><span class="tile">Call</span></label>
+          </div>
+        </div>
+        <div class="row3" style="grid-template-columns:1fr 1.4fr">
+          <div class="field">
+            <label for="name">Your name</label>
+            <input type="text" id="name" name="name" placeholder="Anna" required>
+            <span class="err-msg">Enter your name.</span>
+          </div>
+          <div class="field">
+            <label for="contact" id="contact-label">Phone number</label>
+            <input type="tel" id="contact" name="contact" placeholder="+1 (305) …" required>
+            <span class="err-msg" id="contact-err">Enter a phone number.</span>
+          </div>
+        </div>
+        <input type="hidden" name="utm_source" id="utm_source">
+        <input type="hidden" name="utm_medium" id="utm_medium">
+        <input type="hidden" name="utm_campaign" id="utm_campaign">
+        <input type="hidden" name="referrer" id="referrer">
+        <button class="submit" type="submit">Request my concierge</button>
+        <div class="form-fail" id="form-fail">Something went wrong sending your request. Try again, or message the desk on WhatsApp below.</div>
+        <p class="promise">YOUR CONCIERGE REPLIES WITHIN 2 HOURS · 8AM–10PM ET</p>
+        <p class="alt-channel">Prefer to just message? <a href="https://wa.me/13059640956?text=Hi%2C%20I%20need%20help%20flying%20with%20my%20pet" data-track="whatsapp" target="_blank" rel="noopener">WhatsApp the desk</a></p>
+      </div>
+      <div class="cleared" role="status">
+        <div class="stamp-cleared">CLEARED</div>
+        <h3>Request received.</h3>
+        <div class="receipt">
+          <div><span>Name</span><b id="r-name">—</b></div>
+          <div><span>Route</span><b id="r-route">—</b></div>
+          <div><span>Pet</span><b id="r-pet">—</b></div>
+          <div><span>Reply via</span><b id="r-channel">—</b></div>
+        </div>
+        <p id="cleared-msg">Your concierge will reach you within 2 hours, 8am–10pm ET.</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<div class="trust">
+  <div class="wrap trust-grid">
+    <div class="trust-intro">A private-client standard for pet travel.</div>
+    <div class="trust-item"><strong>One point of contact</strong>No call-center handoffs or anonymous ticket queues.</div>
+    <div class="trust-item"><strong>Route-specific handling</strong>Requirements mapped to your exact origin, destination and airline.</div>
+    <div class="trust-item"><strong>Deadline-aware coordination</strong>Vet visits, endorsements and approvals sequenced around departure.</div>
+  </div>
+</div>
+
+<section class="scope">
+  <div class="wrap scope-grid">
+    <div>
+      <div class="kicker">What we handle</div>
+      <h2>Every document between home and boarding.</h2>
+      <ul>
+        <li><b>Health certificates</b><span>Issued with USDA-accredited vets, endorsed on time — most are valid only days before departure.</span></li>
+        <li><b>Country requirements</b><span>EU, UK, Latin America and beyond: microchip standards, rabies windows, titer tests, import permits.</span></li>
+        <li><b>Airline approvals</b><span>Cabin and hold bookings, breed restrictions, IATA-compliant crate guidance.</span></li>
+        <li><b>Day-of coordination</b><span>Check-in documents packaged and sequenced the way the counter wants to see them.</span></li>
+      </ul>
+    </div>
+    <div class="quotecard">
+      <div class="photo"><img src="https://images.squarespace-cdn.com/content/v1/69f280ed7f03ad7b47461601/1777507226483-377BE4M40RX46T9UF5MW/unsplash-image-oCdVtGFeDC0.jpg" alt="View from an airplane window at sunset"></div>
+      <p>&#8220;Pawsport handled everything. We just showed up at the airport.&#8221;</p>
+      <cite>DOG OWNER · MIAMI &#8594; LONDON</cite>
+      <div class="route">MIA &#8594; LHR · STATUS: CLEARED</div>
+    </div>
+  </div>
+</section>
+
+<section class="fit">
+  <div class="wrap fit-grid">
+    <div>
+      <div class="kicker">Built for real-world moves</div>
+      <h2>Especially valuable when the route is not simple.</h2>
+      <p class="fit-copy">Designed for people who want certainty, responsiveness and one accountable person — particularly when timing is tight or several countries&#8217; rules apply at once.</p>
+    </div>
+    <div class="fit-list">
+      <div class="fit-item"><strong>International relocation</strong><p>Moving a dog or cat between the United States, Europe and Latin America.</p></div>
+      <div class="fit-item"><strong>Tight or changing timelines</strong><p>Short lead times, connections, shifting itineraries or incomplete records.</p></div>
+      <div class="fit-item"><strong>Frequent pet travel</strong><p>A repeatable, high-touch process instead of re-learning the rules each trip.</p></div>
+      <div class="fit-item"><strong>High-stakes peace of mind</strong><p>When &#8220;probably correct&#8221; is not an acceptable standard for your pet&#8217;s departure.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="kicker">How it works</div>
+    <h2>Three steps between you and boarding.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="tag">01 · REQUEST</div>
+        <h3>Tell us the route</h3>
+        <p>Send the request above. Within 2 hours a named concierge replies in your channel with a plan and a fixed quote — no call centers, no forms after this one.</p>
+      </div>
+      <div class="step">
+        <div class="tag">02 · CLEARED</div>
+        <h3>We handle every document</h3>
+        <p>Microchip check, vaccinations, titer tests, USDA-endorsed health certificate, airline approval, destination requirements. You get a Flight File with the full timeline.</p>
+      </div>
+      <div class="step">
+        <div class="tag">03 · BOARD</div>
+        <h3>You fly. That&#8217;s it.</h3>
+        <p>48 hours before departure you receive the final CLEARED confirmation. At check-in, every paper is in order — you just show up with your pet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-band">
+  <div class="wrap inner">
+    <h2>Tell us where you&#8217;re going.</h2>
+    <div class="actions">
+      <a class="btn" href="#request">Request my concierge</a>
+      <a class="btn btn-ghost" href="https://wa.me/13059640956?text=Hi%2C%20I%20need%20help%20flying%20with%20my%20pet" data-track="whatsapp" target="_blank" rel="noopener">Message on WhatsApp</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <span class="mono">PAWSPORT CONCIERGE · MIAMI, FL</span>
+    <span><a href="mailto:hello@pawsportconcierge.com" data-track="email">hello@pawsportconcierge.com</a> · <a href="tel:+13059640956" data-track="call">(305) 964-0956</a></span>
+    <span class="mono">EST. 2026</span>
+  </div>
+</footer>
+
+<div class="sticky-cta" id="sticky-cta">
+  <a class="btn" href="#request">Request my concierge</a>
+  <a class="btn btn-ghost" href="https://wa.me/13059640956?text=Hi%2C%20I%20need%20help%20flying%20with%20my%20pet" data-track="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
+</div>
+
+<script>
+const FORM_ENDPOINT = ""; /* paste your Formspree / Tally / webhook URL here */
+
+/* ---- utm + referrer capture ---- */
+const qp = new URLSearchParams(location.search);
+['utm_source','utm_medium','utm_campaign'].forEach(k => {
+  document.getElementById(k).value = qp.get(k) || '';
+});
+document.getElementById('referrer').value = document.referrer || '';
+
+/* ---- analytics helper ---- */
+function track(event, params){ window.dataLayer.push(Object.assign({event}, params || {})); }
+document.querySelectorAll('[data-track]').forEach(el => {
+  el.addEventListener('click', () => track('click_' + el.dataset.track));
+});
+
+/* ---- channel tiles ---- */
+const contact = document.getElementById('contact');
+const contactLabel = document.getElementById('contact-label');
+const contactErr = document.getElementById('contact-err');
+document.querySelectorAll('input[name=channel]').forEach(r => r.addEventListener('change', () => {
+  contactLabel.textContent = r.dataset.ph;
+  contact.type = r.dataset.type;
+  contact.placeholder = r.dataset.type === 'email' ? 'name@email.com' : '+1 (305) …';
+  contactErr.textContent = r.dataset.type === 'email' ? 'Enter an email address.' : 'Enter a phone number.';
+}));
+
+/* ---- multi-leg route ---- */
+const legsWrap = document.getElementById('legs');
+const addLeg = document.getElementById('add-leg');
+const dateLabel = document.getElementById('date-label');
+const MAX_LEGS = 5;
+
+function legCount(){ return legsWrap.querySelectorAll('.leg').length; }
+function updateLegState(){
+  const n = legCount();
+  addLeg.style.display = n >= MAX_LEGS ? 'none' : 'inline-block';
+  dateLabel.textContent = n > 1 ? 'First departure date' : 'Departure date';
+  legsWrap.querySelectorAll('.leg').forEach((leg, i) => {
+    leg.querySelector('.leg-from').setAttribute('aria-label', 'Leg ' + (i+1) + ' departure city');
+    leg.querySelector('.leg-to').setAttribute('aria-label', 'Leg ' + (i+1) + ' destination');
+  });
+}
+addLeg.addEventListener('click', () => {
+  const legs = legsWrap.querySelectorAll('.leg');
+  const prevTo = legs[legs.length - 1].querySelector('.leg-to').value.trim();
+  const el = document.createElement('div');
+  el.className = 'leg';
+  el.innerHTML = '<div class="row">' +
+    '<div class="field" style="margin:0"><input type="text" class="leg-from" placeholder="From" required><span class="err-msg">Enter the departure city.</span></div>' +
+    '<div class="arrow" aria-hidden="true">&#8594;</div>' +
+    '<div class="field" style="margin:0"><input type="text" class="leg-to" placeholder="To" required><span class="err-msg">Enter the destination.</span></div>' +
+    '</div><button type="button" class="remove-leg" aria-label="Remove this leg">&#215;</button>';
+  el.querySelector('.leg-from').value = prevTo;
+  legsWrap.appendChild(el);
+  updateLegState();
+  el.querySelector(prevTo ? '.leg-to' : '.leg-from').focus();
+});
+legsWrap.addEventListener('click', (e) => {
+  const btn = e.target.closest('.remove-leg');
+  if (btn && legCount() > 1){ btn.closest('.leg').remove(); updateLegState(); }
+});
+function getLegs(){
+  return Array.from(legsWrap.querySelectorAll('.leg')).map(leg => ({
+    from: leg.querySelector('.leg-from').value.trim(),
+    to: leg.querySelector('.leg-to').value.trim()
+  }));
+}
+function routeChain(){
+  const legs = getLegs();
+  const chain = [legs[0].from, legs[0].to];
+  for (let i = 1; i < legs.length; i++){
+    if (legs[i].from && legs[i].from !== chain[chain.length - 1]) chain.push(legs[i].from);
+    chain.push(legs[i].to);
+  }
+  return chain.filter(Boolean);
+}
+
+/* ---- custom date picker ---- */
+const noticket = document.getElementById('noticket');
+const dateBtn = document.getElementById('date-btn');
+const dateISO = document.getElementById('date');
+const cal = document.getElementById('cal');
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DOW = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+const today = new Date(); today.setHours(0,0,0,0);
+let view = new Date(today.getFullYear(), today.getMonth(), 1);
+
+function iso(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function renderCal(){
+  const y = view.getFullYear(), m = view.getMonth();
+  const first = (new Date(y, m, 1).getDay() + 6) % 7; /* Monday-first */
+  const days = new Date(y, m + 1, 0).getDate();
+  const canPrev = new Date(y, m, 1) > today;
+  let html = '<div class="cal-head">' +
+    '<button type="button" class="cal-nav" data-nav="-1" aria-label="Previous month"' + (canPrev ? '' : ' disabled') + '>&#8249;</button>' +
+    '<span class="cal-title">' + MONTHS[m] + ' ' + y + '</span>' +
+    '<button type="button" class="cal-nav" data-nav="1" aria-label="Next month">&#8250;</button></div><div class="cal-grid">';
+  DOW.forEach(d => html += '<span class="cal-dow">' + d + '</span>');
+  for (let i = 0; i < first; i++) html += '<span></span>';
+  for (let d = 1; d <= days; d++){
+    const dt = new Date(y, m, d);
+    const dIso = iso(dt);
+    const cls = 'cal-day' + (dIso === iso(today) ? ' today' : '') + (dIso === dateISO.value ? ' sel' : '');
+    html += '<button type="button" class="' + cls + '" data-date="' + dIso + '"' + (dt < today ? ' disabled' : '') + '>' + d + '</button>';
+  }
+  cal.innerHTML = html + '</div>';
+}
+function openCal(open){
+  cal.classList.toggle('open', open);
+  dateBtn.setAttribute('aria-expanded', open);
+  if (open) renderCal();
+}
+dateBtn.addEventListener('click', () => openCal(!cal.classList.contains('open')));
+cal.addEventListener('click', (e) => {
+  const nav = e.target.closest('[data-nav]');
+  if (nav){ view = new Date(view.getFullYear(), view.getMonth() + Number(nav.dataset.nav), 1); renderCal(); return; }
+  const day = e.target.closest('[data-date]');
+  if (day){
+    dateISO.value = day.dataset.date;
+    const d = new Date(day.dataset.date + 'T00:00:00');
+    dateBtn.textContent = d.toLocaleDateString('en-US', {day:'numeric', month:'short', year:'numeric'});
+    dateBtn.classList.add('set');
+    dateBtn.closest('.field').classList.remove('has-error');
+    openCal(false);
+  }
+});
+document.addEventListener('click', (e) => {
+  if (!cal.contains(e.target) && e.target !== dateBtn) openCal(false);
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') openCal(false); });
+noticket.addEventListener('change', () => {
+  dateBtn.disabled = noticket.checked;
+  if (noticket.checked){ dateISO.value = ''; dateBtn.textContent = 'Select a date'; dateBtn.classList.remove('set'); openCal(false); }
+});
+
+/* ---- form_start (once) ---- */
+const form = document.getElementById('request');
+let started = false;
+form.addEventListener('focusin', () => {
+  if (!started){ started = true; track('form_start'); }
+});
+
+/* ---- submit ---- */
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fail = document.getElementById('form-fail');
+  fail.style.display = 'none';
+
+  let firstBad = null;
+  const need = [];
+  legsWrap.querySelectorAll('.leg-from, .leg-to').forEach(el => need.push({el}));
+  need.push({el: dateBtn, ok: () => noticket.checked || dateISO.value});
+  need.push({el: document.getElementById('name')});
+  need.push({el: contact, ok: () => contact.type === 'email' ? contact.value.includes('@') : contact.value.trim().length >= 7});
+  need.forEach(({el, ok}) => {
+    const good = ok ? ok() : !!el.value.trim();
+    const field = el.closest('.field');
+    field.classList.toggle('has-error', !good);
+    el.setAttribute('aria-invalid', good ? 'false' : 'true');
+    if (!good && !firstBad) firstBad = el;
+  });
+  if (firstBad){ if (!firstBad.disabled) firstBad.focus(); return; }
+
+  const data = Object.fromEntries(new FormData(form).entries());
+  data.channel = document.querySelector('input[name=channel]:checked').value;
+  const legs = getLegs();
+  data.legs = legs;
+  data.route = legs.map(l => l.from + ' \u2192 ' + l.to).join('; ');
+  data.submittedAt = new Date().toISOString();
+
+  const btn = form.querySelector('.submit');
+  btn.disabled = true;
+  const btnText = btn.textContent;
+  btn.textContent = 'Sending…';
+
+  try {
+    if (FORM_ENDPOINT){
+      const res = await fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','Accept':'application/json'},
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error('endpoint ' + res.status);
+    } else {
+      console.log('Lead (no endpoint set):', data);
+    }
+
+    let days = null;
+    if (data.date){
+      days = Math.round((new Date(data.date) - new Date()) / 86400000);
+    }
+    const chain = routeChain();
+    track('generate_lead', {
+      route_from: chain[0], route_to: chain[chain.length - 1], channel: data.channel,
+      legs_count: legs.length, complex_route: legs.length > 1,
+      no_ticket: !!data.noticket, days_to_departure: days,
+      utm_source: data.utm_source || '(none)'
+    });
+
+    document.getElementById('r-name').textContent = data.name;
+    document.getElementById('r-route').textContent = chain.join(' \u2192 ') + (data.date ? ' \u00b7 ' + dateBtn.textContent : ' \u00b7 no ticket yet');
+    document.getElementById('r-pet').textContent = data.pet + (data.breed ? ' \u00b7 ' + data.breed : '') + (data.weight ? ' \u00b7 ' + data.weight + ' lb' : '');
+    document.getElementById('r-channel').textContent = data.channel + ': ' + data.contact;
+    document.getElementById('cleared-msg').textContent =
+      'Your concierge will reach you on ' + data.channel + ' within 2 hours, 8am\u201310pm ET.';
+    form.querySelector('.cleared').classList.add('show');
+  } catch (err){
+    console.error(err);
+    fail.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = btnText;
+  }
+});
+
+/* ---- sticky mobile cta ---- */
+const sticky = document.getElementById('sticky-cta');
+if (window.matchMedia('(max-width: 920px)').matches){
+  const io = new IntersectionObserver(([entry]) => {
+    sticky.classList.toggle('visible', !entry.isIntersecting);
+  });
+  io.observe(form);
+}
+</script>
+</body>
+</html>
