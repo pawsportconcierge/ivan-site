@@ -919,6 +919,7 @@ footer{background:var(--navy-deep);color:#A8B3A4;padding:44px 0}
 
 <script>
 const FORM_ENDPOINT = "https://formspree.io/f/xqpzzplq";
+const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbxYcurepdPrNzFfFg8dp8MjYd6CmBwj4KYRwDoEZu4vvEMx9caq-ihSp4a1SW7DjE6w/exec"; /* Google Sheets CRM */
 
 /* ---- utm + referrer capture ---- */
 const qp = new URLSearchParams(location.search);
@@ -1094,6 +1095,15 @@ form.addEventListener('submit', async (e) => {
   btn.disabled = true;
   const btnText = btn.textContent;
   btn.textContent = 'Sending…';
+
+  /* CRM: копия заявки в Google Sheets (не блокирует отправку) */
+  if (SHEET_ENDPOINT){
+    try {
+      fetch(SHEET_ENDPOINT, {method:'POST', mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(data)});
+    } catch(e){}
+  }
 
   try {
     if (FORM_ENDPOINT){
