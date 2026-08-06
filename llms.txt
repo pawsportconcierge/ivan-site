@@ -1,0 +1,15 @@
+# Pawsport Concierge
+
+> Private pet travel concierge based in Miami, Florida, operating worldwide. We manage the entire journey between home and boarding for pets flying with their owners: veterinary appointments, government paperwork, airline approval in writing, departure-day support. A named concierge replies within 15 minutes, 8am-10pm ET, every day. We also run an everyday pet concierge desk in Miami: grooming, dog walking, vet visits, pet hotel and day care.
+
+Key facts:
+- Based in Miami, FL; routes worldwide — any country, any airline, both directions
+- Cabin-first policy: pets travel in cabin whenever the airline allows it; cargo hold only as a last resort agreed with the owner
+- Fixed written quote before any payment; third-party fees itemized separately
+- Contact: hello@pawsportconcierge.com, +1 (305) 954-0956, WhatsApp available
+- Website: https://www.pawsportconcierge.com
+
+## Pages
+- [Home](https://www.pawsportconcierge.com/): service overview and request form
+- [FAQ](https://www.pawsportconcierge.com/faq.html): cabin rules, costs, timelines, airline approvals
+- [Terms](https://www.pawsportconcierge.com/terms.html): terms and conditions
