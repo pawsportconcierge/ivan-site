@@ -89,6 +89,11 @@ header{background:var(--navy);color:var(--cream)}
 /* ---------- hero ---------- */
 .hero{background:linear-gradient(100deg, rgba(17,28,22,.93) 0%, rgba(17,28,22,.72) 46%, rgba(17,28,22,.42) 100%),url("assets/media/hero-terminal.jpg") center 62%/cover no-repeat var(--navy);color:var(--cream);padding:60px 0 92px;position:relative;overflow:hidden}
 .hero-grid{display:grid;grid-template-columns:1fr 460px;gap:60px;align-items:start}
+@media (max-width:640px){
+  .hero{background:var(--navy)}
+  .hero::before{content:"";position:absolute;top:0;left:0;right:0;height:780px;background:linear-gradient(100deg, rgba(17,28,22,.93) 0%, rgba(17,28,22,.72) 46%, rgba(17,28,22,.42) 100%),url("assets/media/hero-terminal.jpg") center 30%/cover no-repeat;-webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 100%);mask-image:linear-gradient(to bottom,#000 55%,transparent 100%);pointer-events:none}
+  .hero>.wrap{position:relative;z-index:1}
+}
 .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--camel);text-transform:uppercase;margin-bottom:24px}
 h1{font-family:var(--serif);font-weight:400;font-size:clamp(46px,6.2vw,84px);line-height:.97;letter-spacing:-1.5px;max-width:13ch}
 .hero p.lead{margin-top:24px;font-size:17px;line-height:1.65;color:#C6CEC0;max-width:46ch}
