@@ -1,2 +1,7 @@
 User-agent: *
 Disallow: /
+
+# Пока обход запрещён целиком (тест-домен). В день запуска
+# снимаем Disallow и noindex ОДНОЙ выкладкой — иначе краулер не увидит
+# снятый noindex, потому что ему запрещён обход.
+Sitemap: https://www.pawsportconcierge.com/sitemap.xml

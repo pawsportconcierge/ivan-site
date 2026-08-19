@@ -11,5 +11,8 @@ Key facts:
 
 ## Pages
 - [Home](https://www.pawsportconcierge.com/): service overview and request form
+- [About](https://www.pawsportconcierge.com/about.html): who runs the Miami desk, what we coordinate, who we work with
+- [Blog](https://www.pawsportconcierge.com/blog/): notes from the desk on paperwork windows, airline confirmations and timing
+- [How early should you start preparing your pet's flight?](https://www.pawsportconcierge.com/blog/how-early-to-start-pet-flight.html): why the timeline runs backwards from the departure date
 - [FAQ](https://www.pawsportconcierge.com/faq.html): cabin rules, costs, timelines, airline approvals
 - [Terms](https://www.pawsportconcierge.com/terms.html): terms and conditions
