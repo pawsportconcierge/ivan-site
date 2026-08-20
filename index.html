@@ -115,79 +115,12 @@ header{background:var(--navy);color:var(--cream)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.desk-dot{animation:none}}
 .nav-right{display:flex;align-items:center;gap:20px}
-/* ── ГЛАВНАЯ CTA: тиснёная пластина, а не плоская заливка (20.08) ─────────
-   Опора — язык самого сайта: печати, перфорации, штампы. Кнопка лежит только
-   на navy (шапка, полоса CTA, sticky), поэтому металл здесь латунно-шампанский.
-
-   Что делает вид «предметом»: вертикальный градиент, светлая фаска по верхней
-   кромке (свет на рельефе), тёплая тень по нижней (кромка уходит в бумагу),
-   мягкая тень покоя, латунный кант --camel-lt.
-
-   ДВИЖЕНИЕ С ВЕСОМ. Прежний ховер ПЕРЕВОРАЧИВАЛ цвет (камель + кремовый текст)
-   и ронял контраст подписи с 14.74 до 5.11 — это и читалось дёшево. Теперь
-   ховер уплотняет металл и поднимает тень за 320мс ease-out, а нажатие
-   отвечает за 90мс: быстрый отклик, медленный возврат — так ощущается вес.
-   Меняются ТОЛЬКО transform и box-shadow — сдвига раскладки нет (проверено:
-   185.2x50.4 в покое и на ховере до десятой пикселя).
-
-   СВЕЧЕНИЕ (20.08, второй заход). Две вещи, а не одна:
-   1) «полированный металл» — яркая корона в верхних 13% градиента плюс световая
-      лужа `inset 0 7px 14px -7px` под кромкой. Работает В ПОКОЕ, а плоской
-      кнопка видна именно в покое — почти всегда;
-   2) «тёплое гало» — двухслойный bloom в тоне латуни (28px и 62px) на ховере.
-      В покое почти нулевой (.05), иначе читался бы как постоянная подсветка.
-
-   ГАЛО НЕ ДОЛЖНО ПУТАТЬСЯ С ФОКУС-КОЛЬЦОМ. Кольцо — крисп-линия 2px камелем
-   с зазором 3px: у неё есть контур. У гало spread нулевой и контура нет вовсе,
-   это размытое пятно. Проверено кадрами «фокус» и «фокус+ховер» с настоящим Tab:
-   кольцо остаётся различимым поверх ореола. Если будешь трогать гало — не
-   добавляй spread, именно он превратит его в кольцо.
-
-   Блик-проводку рассматривали дважды и оба раза сняли: на ховере она делает то
-   же, что гало, — третий эффект в той же точке. Приём рабочий (z-index:-1, блик
-   над градиентом и под текстом), записан в STATUS на случай возврата. */
-.btn{position:relative;display:inline-block;font-family:var(--sans);font-weight:600;
-  font-size:14px;letter-spacing:.01em;padding:13px 26px;border-radius:3px;
-  border:1px solid rgba(201,168,124,.85);color:#14211B;text-decoration:none;cursor:pointer;
-  background:linear-gradient(180deg,#FFFDF7 0%,#FAF4E4 13%,#EFE4CA 48%,#DDCBA2 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.95),
-    inset 0 7px 14px -7px rgba(255,255,255,.78),
-    inset 0 -1.5px 0 rgba(140,90,51,.22),
-    0 1px 2px rgba(0,0,0,.18),
-    0 5px 14px rgba(0,0,0,.14),
-    0 0 12px rgba(201,168,124,.05);
-  transition:background .32s cubic-bezier(.22,.61,.36,1),box-shadow .32s cubic-bezier(.22,.61,.36,1),
-             transform .32s cubic-bezier(.22,.61,.36,1),border-color .32s cubic-bezier(.22,.61,.36,1)}
-.btn:hover{background:linear-gradient(180deg,#FFFEFA 0%,#F6EFDB 13%,#E9DCBC 48%,#D3BF91 100%);
-  border-color:#C9A87C;color:#14211B;transform:translateY(-1px);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,1),
-    inset 0 8px 16px -7px rgba(255,255,255,.92),
-    inset 0 -1.5px 0 rgba(140,90,51,.28),
-    0 2px 5px rgba(0,0,0,.20),
-    0 12px 30px rgba(0,0,0,.22),
-    0 0 28px rgba(201,168,124,.34),
-    0 0 62px rgba(201,168,124,.16)}
-.btn:active{transform:translateY(1px);transition-duration:.09s;
-  box-shadow:
-    inset 0 2px 4px rgba(92,62,30,.30),
-    inset 0 -1px 0 rgba(255,255,255,.6),
-    0 1px 1px rgba(0,0,0,.14)}
-/* Вторичная: тот же язык движения, но без металла — гравировка вместо пластины.
-   Прежний ховер заливал её кремом и делал почти неотличимой от главной.
-   Правила ниже .btn:hover намеренно: при равной специфичности побеждает порядок. */
-.btn.btn-ghost{background:none;color:var(--cream);
-  border-color:rgba(201,168,124,.42);
-  box-shadow:inset 0 1px 0 rgba(246,241,228,.10)}
-.btn.btn-ghost:hover{background:rgba(246,241,228,.07);color:var(--cream);
-  border-color:rgba(201,168,124,.78);transform:translateY(-1px);
-  box-shadow:inset 0 1px 0 rgba(246,241,228,.18),0 6px 18px rgba(0,0,0,.24)}
-.btn.btn-ghost:active{transform:translateY(1px);
-  box-shadow:inset 0 1px 3px rgba(0,0,0,.28)}
-@media(prefers-reduced-motion:reduce){
-  .btn{transition:none}
-  .btn:hover,.btn:active,.btn.btn-ghost:hover,.btn.btn-ghost:active{transform:none}}
+.btn{display:inline-block;font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:.01em;padding:13px 26px;border-radius:3px;border:1px solid var(--cream);color:#14211B;background:var(--cream);text-decoration:none;cursor:pointer;transition:background .18s,color .18s,transform .18s}
+/* одно правило на состояние: раньше вторая декларация затирала первую и ghost-кнопка
+   на ховере давала тёмный текст на navy ≈1.5:1 */
+.btn:hover{background:var(--camel-soft);color:var(--cream);border-color:var(--camel-soft);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--cream);border-color:rgba(246,241,228,.4)}
+.btn-ghost:hover{background:var(--cream);color:#14211B;border-color:var(--cream);transform:translateY(-1px)}
 
 /* ---------- hero ---------- */
 .hero{background:var(--navy);color:var(--cream);padding:60px 0 92px;position:relative;overflow:hidden}
@@ -311,41 +244,19 @@ textarea{resize:none;height:88px;overflow-y:auto}
   text-transform:none;letter-spacing:0}
 .field.has-error .err-msg{display:block}
 .field.has-error input,.field.has-error select,.field.has-error textarea{border-color:var(--oxblood)}
-/* ── КНОПКА ОТПРАВКИ: тот же материал и то же движение, другой металл ─────
-   .submit лежит не на navy, а на светлой бумаге карточки (--paper), поэтому
-   латунь здесь не годится: шампань на кремовом почти не отделяется от фона и
-   кнопка теряет вес. Металл тёмный — лакированная пластина: тот же приём
-   (градиент + фаска + тень покоя), та же кривая и те же длительности, что у
-   .btn. На тёмной пластине ховер идёт НАВСТРЕЧУ свету, а не уплотняет: это
-   то же «поверхность повернулась к свету», просто на другом основании. */
-.submit{width:100%;margin-top:6px;font-size:15px;font-weight:500;padding:14px;
-  border-radius:3px;cursor:pointer;color:var(--cream);
-  border:1px solid #16241D;
-  background:linear-gradient(180deg,#2A4033 0%,#1E3227 52%,#152420 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(246,241,228,.16),
-    inset 0 -1.5px 0 rgba(0,0,0,.32),
-    0 1px 2px rgba(0,0,0,.16),
-    0 5px 14px rgba(20,33,27,.16);
-  transition:background .32s cubic-bezier(.22,.61,.36,1),box-shadow .32s cubic-bezier(.22,.61,.36,1),
-             transform .32s cubic-bezier(.22,.61,.36,1),border-color .32s cubic-bezier(.22,.61,.36,1)}
-.submit:hover{background:linear-gradient(180deg,#324B3C 0%,#25392E 52%,#192C23 100%);
-  border-color:#1E3227;transform:translateY(-1px);
-  box-shadow:
-    inset 0 1px 0 rgba(246,241,228,.22),
-    inset 0 -1.5px 0 rgba(0,0,0,.36),
-    0 2px 5px rgba(0,0,0,.18),
-    0 12px 30px rgba(20,33,27,.24)}
-.submit:active{transform:translateY(1px);transition-duration:.09s;
-  box-shadow:
-    inset 0 2px 4px rgba(0,0,0,.42),
-    inset 0 -1px 0 rgba(246,241,228,.10),
-    0 1px 1px rgba(0,0,0,.14)}
-.submit:disabled{opacity:.7;cursor:wait;transform:none;
-  box-shadow:inset 0 1px 0 rgba(246,241,228,.12),0 1px 2px rgba(0,0,0,.12)}
+.submit{width:100%;margin-top:6px;background:var(--navy);border:1px solid var(--navy);color:var(--cream);font-size:15px;font-weight:500;padding:14px;border-radius:3px;cursor:pointer;transition:background .15s}
+.submit:hover{background:var(--navy-deep)}
+.submit:disabled{opacity:.7;cursor:wait}
+/* ── reduced-motion для кнопок ────────────────────────────────────────────
+   Инлайновая копия .btn в v4 своего правила никогда не имела (в pages.css оно
+   было, здесь нет), у .submit его не было нигде. Обе поднимаются на 1px на
+   ховере — движение реальное.
+   БЛОК ДОЛЖЕН СТОЯТЬ ЗДЕСЬ, ПОСЛЕ .submit. Сначала я поставил его рядом с .btn
+   (строка ~124) — и .submit{transition:.15s}, объявленная ниже, перебила его
+   по порядку при равной специфичности: замер показал 0.15s вместо 0s. */
 @media(prefers-reduced-motion:reduce){
-  .submit{transition:none}
-  .submit:hover,.submit:active{transform:none}}
+  .btn,.submit{transition:none}
+  .btn:hover,.btn-ghost:hover,.submit:hover{transform:none}}
 .promise{margin-top:12px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.6px;color:var(--muted)}
 .alt-channel{margin-top:10px;text-align:center;font-size:13px;color:var(--muted)}
 .alt-channel a{color:var(--navy);font-weight:500;text-decoration:underline;text-underline-offset:3px}
@@ -674,41 +585,52 @@ footer{background:var(--navy-deep);color:#B3BDB0;padding:44px 0}
 .pane-spacer{flex:1;min-height:8px}
 
 /* ── ЛОКАЛЬНАЯ ПОДЛОЖКА ПОД ТЕКСТОМ ARRIVAL (20.08) ──────────────────────
-   Прежде весь кадр затягивался градиентом в navy — фото теряло закат, а стык
-   с секцией PET DESK был размыт. Теперь фото чистое до самого стыка, граница
-   резкая, а читаемость держит локальная полоса затемнения под текстом.
+   Растворение всего кадра снято, фото идёт чистым до стыка; читаемость держит
+   локальная полоса затемнения под текстом.
 
-   ТОН ТЁПЛЫЙ, НЕ ФИРМЕННЫЙ NAVY. rgba(24,16,10) — коричнево-нейтральный.
-   На золотом закатном кадре зелёная тень (rgba(10,18,14), стояла до 20.08)
-   читалась цветным пятном, тёплая читается естественной тенью на песке.
+   ТОН ТЁПЛЫЙ, НЕ ФИРМЕННЫЙ NAVY. rgba(24,16,10) — коричнево-нейтральный:
+   на золотом закатном кадре зелёная тень читалась цветным пятном, тёплая —
+   естественной тенью на песке.
 
-   ГЕОМЕТРИЯ СЧИТАЕТСЯ ОТ РЕАЛЬНОЙ ВЫСОТЫ БЛОКА, не подбирается на глаз:
-   .wrap-arr — 118px на десктопе, 135px на мобильной. Плотность держится с
-   17% до 86% высоты коробки (на мобильной 11–92%), то есть ровно за строками,
-   а гаснет в отступах сверху и снизу. Если менять кегли или тексты — пересчитать.
-   Именно на этом обжёгся первый вариант: плотность гасла на 105px, а подпись
-   начиналась на 108px, и на мобильной строка давала 4.45 при норме 4.5.
+   ПОЛОСА ПРИЖАТА К ЛЕВОЙ КРОМКЕ КАДРА (`left:calc(50% - 50vw)`), слева фейда
+   нет вовсе — гаснет только вправо и по вертикали. Так у пятна на одну видимую
+   границу меньше, и оно читается краевым виньетированием, а не плавающей
+   плашкой. Обрезку берёт на себя `.arrival-section{overflow:hidden}`, поэтому
+   горизонтальной прокрутки `100vw` не создаёт — проверено на 320px.
 
-   У полосы не должно быть ни одной жёсткой кромки, иначе она читается
-   плашкой поверх фотографии. Отсюда затухание по вертикали в обе стороны.
-   На мобильной горизонтальная маска почти убрана (86%→100%): текст занимает
-   там всю ширину, и уходу вправо просто негде уместиться — при маске 58%
-   правый конец подписи оставался без подложки и падал до 2.87.
+   ГЕОМЕТРИЯ СЧИТАЕТСЯ ОТ РЕАЛЬНОЙ ВЫСОТЫ БЛОКА: .wrap-arr — 118px на десктопе,
+   135px на мобильной; плотность держится с 17% до 86% высоты коробки (на
+   мобильной 11–92%), то есть ровно за строками. При смене кеглей — пересчитать.
+   На этом обжёгся первый вариант: плотность гасла на 105px, а подпись
+   начиналась на 108px, и строка давала 4.45 при норме 4.5.
+
+   На мобильной горизонтальная маска почти убрана (84%→100%): текст занимает там
+   всю ширину, уходу вправо негде уместиться.
+
+   ЧТО ОТВЕРГНУТО И ПОЧЕМУ (замерено, не на глаз):
+   — только text-shadow — 1.25–1.66; тень рисуется вокруг буквы, но WCAG считает
+     контраст «текст ↔ фон под ним», и тень в формулу не входит. Даже гибрид с
+     вдвое облегчённой подложкой дал 2.71–2.85. Как приём для соответствия
+     text-shadow не работает;
+   — backdrop-filter — проходит (6.41/5.79), но потребовал brightness(.34), то
+     есть почти той же плотности, плюс размытие 18px: зона читается матовой
+     панелью с различимой кромкой, песок теряет фактуру, и это дорогой фильтр
+     на большой площади поверх фотографии.
 
    Замер построчно (кикер / заголовок / подпись), маска глифов, порог 4.5:
-   1440 — 9.43 / 7.08 / 7.45; 390 — 9.20 / 9.32 / 9.52 / 7.68. */
+   1440 — 10.06 / 10.02 / 7.84; 390 — 9.79 / 10.00 / 10.05 / 8.14. */
 .wrap-arr{position:relative}
 .wrap-arr::before{content:"";position:absolute;pointer-events:none;
-  left:-24px;width:min(940px,66%);top:-40px;bottom:-34px;
-  background:linear-gradient(to bottom,rgba(24,16,10,0) 0%, rgba(24,16,10,0.43) 8%, rgba(24,16,10,0.78) 17%, rgba(24,16,10,0.78) 86%, rgba(24,16,10,0.28) 93%, rgba(24,16,10,0) 100%);
-  -webkit-mask-image:linear-gradient(to right,#000 0%,#000 60%,rgba(0,0,0,0) 90%);
-          mask-image:linear-gradient(to right,#000 0%,#000 60%,rgba(0,0,0,0) 90%)}
+  left:calc(50% - 50vw);width:min(1120px,72vw);top:-40px;bottom:-34px;
+  background:linear-gradient(to bottom,rgba(24,16,10,0) 0%, rgba(24,16,10,0.43) 8%, rgba(24,16,10,0.80) 17%,
+    rgba(24,16,10,0.80) 86%, rgba(24,16,10,0.28) 93%, rgba(24,16,10,0) 100%);
+  -webkit-mask-image:linear-gradient(to right,#000 0%,#000 62%,rgba(0,0,0,0) 100%);
+          mask-image:linear-gradient(to right,#000 0%,#000 62%,rgba(0,0,0,0) 100%)}
 .wrap-arr > *{position:relative}
 @media(max-width:768px){
-  .wrap-arr::before{left:-14px;width:102%;top:-28px;bottom:-22px;
-    background:linear-gradient(to bottom,rgba(24,16,10,0) 0%, rgba(24,16,10,0.43) 5%, rgba(24,16,10,0.78) 11%, rgba(24,16,10,0.78) 92%, rgba(24,16,10,0.28) 96%, rgba(24,16,10,0) 100%);
-    -webkit-mask-image:linear-gradient(to right,#000 0%,#000 86%,rgba(0,0,0,0) 100%);
-            mask-image:linear-gradient(to right,#000 0%,#000 86%,rgba(0,0,0,0) 100%)}}
+  .wrap-arr::before{width:min(760px,96vw);top:-28px;bottom:-22px;
+    -webkit-mask-image:linear-gradient(to right,#000 0%,#000 84%,rgba(0,0,0,0) 100%);
+            mask-image:linear-gradient(to right,#000 0%,#000 84%,rgba(0,0,0,0) 100%)}}
 
 /* ── ПЕРФОРАЦИЯ ПО ОБЕ СТОРОНЫ СЕКЦИИ ────────────────────────────────────
    Секция обрамлена линиями отрыва: светлая на белом сверху, тёмная на navy
