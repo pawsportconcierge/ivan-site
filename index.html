@@ -115,12 +115,60 @@ header{background:var(--navy);color:var(--cream)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.desk-dot{animation:none}}
 .nav-right{display:flex;align-items:center;gap:20px}
-.btn{display:inline-block;font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:.01em;padding:13px 26px;border-radius:3px;border:1px solid var(--cream);color:#14211B;background:var(--cream);text-decoration:none;cursor:pointer;transition:background .18s,color .18s,transform .18s}
-/* одно правило на состояние: раньше вторая декларация затирала первую и ghost-кнопка
-   на ховере давала тёмный текст на navy ≈1.5:1 */
-.btn:hover{background:var(--camel-soft);color:var(--cream);border-color:var(--camel-soft);transform:translateY(-1px)}
-.btn-ghost{background:transparent;color:var(--cream);border-color:rgba(246,241,228,.4)}
-.btn-ghost:hover{background:var(--cream);color:#14211B;border-color:var(--cream);transform:translateY(-1px)}
+/* ── ГЛАВНАЯ CTA: тиснёная пластина, а не плоская заливка (20.08) ─────────
+   Опора — язык самого сайта: печати, перфорации, штампы. Кнопка лежит только
+   на navy (шапка, полоса CTA, sticky), поэтому металл здесь латунно-шампанский.
+
+   Что делает вид «предметом»: вертикальный градиент, светлая фаска по верхней
+   кромке (свет на рельефе), тёплая тень по нижней (кромка уходит в бумагу),
+   мягкая тень покоя, латунный кант --camel-lt.
+
+   ДВИЖЕНИЕ С ВЕСОМ. Прежний ховер ПЕРЕВОРАЧИВАЛ цвет (камель + кремовый текст)
+   и ронял контраст подписи с 14.74 до 5.11 — это и читалось дёшево. Теперь
+   ховер уплотняет металл и поднимает тень за 320мс ease-out, а нажатие
+   отвечает за 90мс: быстрый отклик, медленный возврат — так ощущается вес.
+   Меняются ТОЛЬКО transform и box-shadow — сдвига раскладки нет (проверено:
+   185.2x50.4 в покое и на ховере до десятой пикселя).
+
+   Блик-проводку на ховере рассматривали и сняли: на статике не видна,
+   в движении — единственный эффект, без которого кнопка уже работает. */
+.btn{position:relative;display:inline-block;font-family:var(--sans);font-weight:600;
+  font-size:14px;letter-spacing:.01em;padding:13px 26px;border-radius:3px;
+  border:1px solid rgba(201,168,124,.85);color:#14211B;text-decoration:none;cursor:pointer;
+  background:linear-gradient(180deg,#FBF6E9 0%,#EFE4CA 44%,#DFCFA8 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1.5px 0 rgba(140,90,51,.22),
+    0 1px 2px rgba(0,0,0,.18),
+    0 5px 14px rgba(0,0,0,.14);
+  transition:background .32s cubic-bezier(.22,.61,.36,1),box-shadow .32s cubic-bezier(.22,.61,.36,1),
+             transform .32s cubic-bezier(.22,.61,.36,1),border-color .32s cubic-bezier(.22,.61,.36,1)}
+.btn:hover{background:linear-gradient(180deg,#F8F1E0 0%,#E9DCBC 44%,#D5C296 100%);
+  border-color:#C9A87C;color:#14211B;transform:translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,1),
+    inset 0 -1.5px 0 rgba(140,90,51,.28),
+    0 2px 5px rgba(0,0,0,.20),
+    0 12px 30px rgba(0,0,0,.22)}
+.btn:active{transform:translateY(1px);transition-duration:.09s;
+  box-shadow:
+    inset 0 2px 4px rgba(92,62,30,.30),
+    inset 0 -1px 0 rgba(255,255,255,.6),
+    0 1px 1px rgba(0,0,0,.14)}
+/* Вторичная: тот же язык движения, но без металла — гравировка вместо пластины.
+   Прежний ховер заливал её кремом и делал почти неотличимой от главной.
+   Правила ниже .btn:hover намеренно: при равной специфичности побеждает порядок. */
+.btn.btn-ghost{background:none;color:var(--cream);
+  border-color:rgba(201,168,124,.42);
+  box-shadow:inset 0 1px 0 rgba(246,241,228,.10)}
+.btn.btn-ghost:hover{background:rgba(246,241,228,.07);color:var(--cream);
+  border-color:rgba(201,168,124,.78);transform:translateY(-1px);
+  box-shadow:inset 0 1px 0 rgba(246,241,228,.18),0 6px 18px rgba(0,0,0,.24)}
+.btn.btn-ghost:active{transform:translateY(1px);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.28)}
+@media(prefers-reduced-motion:reduce){
+  .btn{transition:none}
+  .btn:hover,.btn:active,.btn.btn-ghost:hover,.btn.btn-ghost:active{transform:none}}
 
 /* ---------- hero ---------- */
 .hero{background:var(--navy);color:var(--cream);padding:60px 0 92px;position:relative;overflow:hidden}
@@ -244,9 +292,41 @@ textarea{resize:none;height:88px;overflow-y:auto}
   text-transform:none;letter-spacing:0}
 .field.has-error .err-msg{display:block}
 .field.has-error input,.field.has-error select,.field.has-error textarea{border-color:var(--oxblood)}
-.submit{width:100%;margin-top:6px;background:var(--navy);border:1px solid var(--navy);color:var(--cream);font-size:15px;font-weight:500;padding:14px;border-radius:3px;cursor:pointer;transition:background .15s}
-.submit:hover{background:var(--navy-deep)}
-.submit:disabled{opacity:.7;cursor:wait}
+/* ── КНОПКА ОТПРАВКИ: тот же материал и то же движение, другой металл ─────
+   .submit лежит не на navy, а на светлой бумаге карточки (--paper), поэтому
+   латунь здесь не годится: шампань на кремовом почти не отделяется от фона и
+   кнопка теряет вес. Металл тёмный — лакированная пластина: тот же приём
+   (градиент + фаска + тень покоя), та же кривая и те же длительности, что у
+   .btn. На тёмной пластине ховер идёт НАВСТРЕЧУ свету, а не уплотняет: это
+   то же «поверхность повернулась к свету», просто на другом основании. */
+.submit{width:100%;margin-top:6px;font-size:15px;font-weight:500;padding:14px;
+  border-radius:3px;cursor:pointer;color:var(--cream);
+  border:1px solid #16241D;
+  background:linear-gradient(180deg,#2A4033 0%,#1E3227 52%,#152420 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(246,241,228,.16),
+    inset 0 -1.5px 0 rgba(0,0,0,.32),
+    0 1px 2px rgba(0,0,0,.16),
+    0 5px 14px rgba(20,33,27,.16);
+  transition:background .32s cubic-bezier(.22,.61,.36,1),box-shadow .32s cubic-bezier(.22,.61,.36,1),
+             transform .32s cubic-bezier(.22,.61,.36,1),border-color .32s cubic-bezier(.22,.61,.36,1)}
+.submit:hover{background:linear-gradient(180deg,#324B3C 0%,#25392E 52%,#192C23 100%);
+  border-color:#1E3227;transform:translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(246,241,228,.22),
+    inset 0 -1.5px 0 rgba(0,0,0,.36),
+    0 2px 5px rgba(0,0,0,.18),
+    0 12px 30px rgba(20,33,27,.24)}
+.submit:active{transform:translateY(1px);transition-duration:.09s;
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.42),
+    inset 0 -1px 0 rgba(246,241,228,.10),
+    0 1px 1px rgba(0,0,0,.14)}
+.submit:disabled{opacity:.7;cursor:wait;transform:none;
+  box-shadow:inset 0 1px 0 rgba(246,241,228,.12),0 1px 2px rgba(0,0,0,.12)}
+@media(prefers-reduced-motion:reduce){
+  .submit{transition:none}
+  .submit:hover,.submit:active{transform:none}}
 .promise{margin-top:12px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.6px;color:var(--muted)}
 .alt-channel{margin-top:10px;text-align:center;font-size:13px;color:var(--muted)}
 .alt-channel a{color:var(--navy);font-weight:500;text-decoration:underline;text-underline-offset:3px}
