@@ -96,26 +96,45 @@ header{background:var(--navy);color:var(--cream)}
    Меняются ТОЛЬКО transform и box-shadow — сдвига раскладки нет (проверено:
    185.2x50.4 в покое и на ховере до десятой пикселя).
 
-   Блик-проводку на ховере рассматривали и сняли: на статике не видна,
-   в движении — единственный эффект, без которого кнопка уже работает. */
+   СВЕЧЕНИЕ (20.08, второй заход). Две вещи, а не одна:
+   1) «полированный металл» — яркая корона в верхних 13% градиента плюс световая
+      лужа `inset 0 7px 14px -7px` под кромкой. Работает В ПОКОЕ, а плоской
+      кнопка видна именно в покое — почти всегда;
+   2) «тёплое гало» — двухслойный bloom в тоне латуни (28px и 62px) на ховере.
+      В покое почти нулевой (.05), иначе читался бы как постоянная подсветка.
+
+   ГАЛО НЕ ДОЛЖНО ПУТАТЬСЯ С ФОКУС-КОЛЬЦОМ. Кольцо — крисп-линия 2px камелем
+   с зазором 3px: у неё есть контур. У гало spread нулевой и контура нет вовсе,
+   это размытое пятно. Проверено кадрами «фокус» и «фокус+ховер» с настоящим Tab:
+   кольцо остаётся различимым поверх ореола. Если будешь трогать гало — не
+   добавляй spread, именно он превратит его в кольцо.
+
+   Блик-проводку рассматривали дважды и оба раза сняли: на ховере она делает то
+   же, что гало, — третий эффект в той же точке. Приём рабочий (z-index:-1, блик
+   над градиентом и под текстом), записан в STATUS на случай возврата. */
 .btn{position:relative;display:inline-block;font-family:var(--sans);font-weight:600;
   font-size:14px;letter-spacing:.01em;padding:13px 26px;border-radius:3px;
   border:1px solid rgba(201,168,124,.85);color:#14211B;text-decoration:none;cursor:pointer;
-  background:linear-gradient(180deg,#FBF6E9 0%,#EFE4CA 44%,#DFCFA8 100%);
+  background:linear-gradient(180deg,#FFFDF7 0%,#FAF4E4 13%,#EFE4CA 48%,#DDCBA2 100%);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 7px 14px -7px rgba(255,255,255,.78),
     inset 0 -1.5px 0 rgba(140,90,51,.22),
     0 1px 2px rgba(0,0,0,.18),
-    0 5px 14px rgba(0,0,0,.14);
+    0 5px 14px rgba(0,0,0,.14),
+    0 0 12px rgba(201,168,124,.05);
   transition:background .32s cubic-bezier(.22,.61,.36,1),box-shadow .32s cubic-bezier(.22,.61,.36,1),
              transform .32s cubic-bezier(.22,.61,.36,1),border-color .32s cubic-bezier(.22,.61,.36,1)}
-.btn:hover{background:linear-gradient(180deg,#F8F1E0 0%,#E9DCBC 44%,#D5C296 100%);
+.btn:hover{background:linear-gradient(180deg,#FFFEFA 0%,#F6EFDB 13%,#E9DCBC 48%,#D3BF91 100%);
   border-color:#C9A87C;color:#14211B;transform:translateY(-1px);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,1),
+    inset 0 8px 16px -7px rgba(255,255,255,.92),
     inset 0 -1.5px 0 rgba(140,90,51,.28),
     0 2px 5px rgba(0,0,0,.20),
-    0 12px 30px rgba(0,0,0,.22)}
+    0 12px 30px rgba(0,0,0,.22),
+    0 0 28px rgba(201,168,124,.34),
+    0 0 62px rgba(201,168,124,.16)}
 .btn:active{transform:translateY(1px);transition-duration:.09s;
   box-shadow:
     inset 0 2px 4px rgba(92,62,30,.30),
