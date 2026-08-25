@@ -75,6 +75,8 @@
   /* --line: декоративные разделители. --line-strong: границы контролов, 3.65:1 к белому
      и 3.40:1 к --paper (WCAG 1.4.11). */
   --line-strong:#8F8570;
+  /* Trustpilot: фирменный #00B67A даёт на кремовом 2.34:1 — затемнён до 3.52:1 */
+  --tp-green:#009262;
   /* фокус: камель на светлом (5.8:1), светлый камель на navy (6.1:1) */
   --focus:#8C5A33; --focus-on-dark:#C9A87C;
   /* высота мобильной панели .sticky-cta — куки-баннер поднимается над ней */
@@ -278,10 +280,29 @@ textarea{resize:none;height:88px;overflow-y:auto}
 
 /* ---------- trust strip ---------- */
 .trust{border-bottom:1px solid var(--line);padding:22px 0;background:var(--cream)}
-.trust-grid{display:grid;grid-template-columns:1.1fr repeat(3,1fr);gap:22px;align-items:center}
+.trust-grid{display:grid;grid-template-columns:1.1fr repeat(4,1fr);gap:22px;align-items:center}
 .trust-intro{font-family:var(--serif);font-size:23px;line-height:1.1;color:var(--navy)}
 .trust-item{padding-left:20px;border-left:1px solid var(--line);font-size:12.5px;line-height:1.55;color:var(--muted)}
 .trust-item strong{display:block;color:var(--navy);font-size:13.5px;font-weight:500;margin-bottom:3px}
+/* ── TRUSTPILOT · пятый элемент полосы доверия ────────────────────────────
+   Показываем ФАКТ (все отзывы пятизвёздочные), а не TrustScore: на выборке
+   в 5 отзывов он сглажен до 4.1, и цифра сработала бы против нас.
+   Зелёный НЕ фирменный #00B67A: на кремовом он даёт 2.34:1 при норме 3:1
+   для графики (WCAG 1.4.11). --tp-green — тот же тон (H 160°, S 100%),
+   яркость 80% от фирменной: 3.52:1 на кремовом, 3.97:1 на белом.
+   Виджеты и скрипты Trustpilot по-прежнему не подключаем — звезда инлайн. */
+.tp-trust{text-decoration:none;color:var(--muted);transition:color .18s}
+.trust-item.tp-trust .tp-trust-stars{display:flex;align-items:center;gap:3px;
+  height:1.7rem;margin-bottom:4px}
+.trust-item.tp-trust .tp-trust-stars svg{width:clamp(15px,1.15vw,17px);
+  height:clamp(15px,1.15vw,17px);flex:none;display:block}
+.tp-trust .tp-word{border-bottom:1px solid rgba(30,50,39,.6);
+  transition:border-color .18s}
+.tp-trust:hover{color:var(--navy)}
+.tp-trust:hover .tp-word{border-bottom-color:var(--navy)}
+.tp-trust:focus-visible{outline:2px solid var(--focus);outline-offset:4px;
+  border-radius:3px}
+@media(prefers-reduced-motion:reduce){.tp-trust,.tp-trust .tp-word{transition:none}}
 
 /* ---------- sections ---------- */
 section{padding:56px 0}
@@ -341,6 +362,7 @@ footer{background:var(--navy-deep);color:#B3BDB0;padding:44px 0}
   .passport{margin:0 auto}
   .trust-grid{grid-template-columns:1fr 1fr}
   .trust-intro{grid-column:1/-1}
+  .trust-item.tp-trust .tp-trust-stars svg{width:16px;height:16px}
   .scope-grid,.fit-grid{grid-template-columns:1fr}
   .steps{grid-template-columns:1fr}
   .step{border-right:none;border-bottom:1px solid var(--line)}
@@ -1234,6 +1256,20 @@ body{background:#FFFFFF}
     <div class="trust-item reveal" style="--d:.05s"><strong class="stat">15 min</strong>A named concierge replies &mdash; 8am&ndash;10pm ET, every day.</div>
     <div class="trust-item reveal" style="--d:.2s"><strong class="stat">7 days</strong>Departures don&rsquo;t wait for Monday. Neither does the desk.</div>
     <div class="trust-item reveal" style="--d:.35s"><strong class="stat">1 person</strong>Owns your pet&rsquo;s file from first message to boarding.</div>
+    <!-- ───────────────────────────────────────────────────────────────
+         TRUSTPILOT · пятый элемент. Это ФАКТ, а не рейтинг: все отзывы
+         пятизвёздочные. TrustScore на выборке в 5 отзывов сглажен до 4.1 —
+         цифру на сайт намеренно НЕ выносим (см. заготовку в подвале:
+         Rated X.X включаем при TrustScore >=4.5 и >=10 отзывах).
+         aggregateRating в schema.org не добавляем: разметка чужих отзывов
+         на своём домене — прямое нарушение правил Google.
+         ─────────────────────────────────────────────────────────────── -->
+    <a class="trust-item tp-trust reveal" style="--d:.5s"
+       href="https://www.trustpilot.com/review/pawsportconcierge.com"
+       target="_blank" rel="noopener" data-track="trustpilot_trustbar">
+      <strong class="stat tp-trust-stars" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="var(--tp-green)" d="M12 1.9l2.94 6.44 7.06.63-5.32 4.7 1.56 6.9L12 16.9 5.76 20.57l1.56-6.9L2 8.97l7.06-.63z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="var(--tp-green)" d="M12 1.9l2.94 6.44 7.06.63-5.32 4.7 1.56 6.9L12 16.9 5.76 20.57l1.56-6.9L2 8.97l7.06-.63z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="var(--tp-green)" d="M12 1.9l2.94 6.44 7.06.63-5.32 4.7 1.56 6.9L12 16.9 5.76 20.57l1.56-6.9L2 8.97l7.06-.63z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="var(--tp-green)" d="M12 1.9l2.94 6.44 7.06.63-5.32 4.7 1.56 6.9L12 16.9 5.76 20.57l1.56-6.9L2 8.97l7.06-.63z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="var(--tp-green)" d="M12 1.9l2.94 6.44 7.06.63-5.32 4.7 1.56 6.9L12 16.9 5.76 20.57l1.56-6.9L2 8.97l7.06-.63z"/></svg></strong>
+      100% 5-star reviews on <span class="tp-word">Trustpilot</span><span class="sr-only"> (opens in a new tab)</span>
+    </a>
   </div>
 </div>
 <div class="tear" aria-hidden="true"><span>PAWSPORT &middot; MIA</span></div>
@@ -1428,12 +1464,19 @@ body{background:#FFFFFF}
           <span>Review us on Trustpilot</span>
         </a>
         <!-- ───────────────────────────────────────────────────────────────
-             TRUSTPILOT · РЕЙТИНГ СО ЗВЁЗДАМИ — вернуть, КОГДА ОТЗЫВОВ СТАНЕТ ≥5.
-             Раньше не включать: рейтинг по двум-трём отзывам выглядит слабее,
-             чем его отсутствие, и просаживается одной случайной оценкой.
+             TRUSTPILOT · РЕЙТИНГ СО ЗВЁЗДАМИ — УСЛОВИЕ ОБНОВЛЕНО 25.08.
+             Сейчас 5 отзывов, все пятизвёздочные, но TrustScore сглажен до 4.1 —
+             малая выборка тянется к среднему по площадке. Поэтому цифра на
+             сайте не стоит, а в полосе доверия стоит факт: ★★★★★ 100% 5-star.
+             УСЛОВИЕ ЗАМЕНЫ: заменить звёзды+100% в полосе доверия на
+             «Rated X.X», КОГДА TrustScore ≥4.5 ПРИ ≥10 отзывах — раньше
+             нет смысла: одна случайная оценка просаживает цифру целиком.
              ЧТОБЫ ВКЛЮЧИТЬ: раскрыть блок ниже, подставить [RATING] (например
-             4.9) и [COUNT] (число отзывов), затем удалить приглашение выше —
+             4.7) и [COUNT] (число отзывов), затем удалить приглашение выше —
              две трустпилотовские сущности рядом читаются как дубль.
+             А ВОТ ЧЕГО НЕЛЬЗЯ: aggregateRating/Review в schema.org по отзывам с
+             Trustpilot — Google запрещает размечать чужие отзывы как свои,
+             штраф — снятие всех рич-сниппетов с домена.
              Стоп-проверка сборки ловит [RATING] и [COUNT] ВНЕ комментариев:
              пока блок закомментирован — сборка идёт, раскрыли и забыли
              подставить — падает. Приём тот же, что был с Facebook.
