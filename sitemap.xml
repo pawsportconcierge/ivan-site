@@ -1,36 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- URL-ы указывают на будущий главный домен www.pawsportconcierge.com, как и
-     canonical на страницах. Пока стоит noindex и robots Disallow, карта никого
-     не приведёт — она готова к дню запуска и снимается вместе с ними. -->
+<!-- Все шесть адресов канонические и совпадают с canonical на страницах:
+     https + www, индекс блога со слэшем. lastmod ставим по фактической дате
+     правки файла — 25.08 правились все шесть (заголовки, описания, og,
+     крошки, ссылка на статью с главной). -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.pawsportconcierge.com/</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.pawsportconcierge.com/about.html</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.pawsportconcierge.com/blog/</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.pawsportconcierge.com/blog/how-early-to-start-pet-flight.html</loc>
-    <lastmod>2026-08-16</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.pawsportconcierge.com/faq.html</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.pawsportconcierge.com/terms.html</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <priority>0.3</priority>
   </url>
 </urlset>
