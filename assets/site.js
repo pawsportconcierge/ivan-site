@@ -79,7 +79,8 @@
     '<div class="cookies" id="cookies" role="dialog" aria-modal="false" ' +
          'aria-label="Cookie settings" tabindex="-1">' +
       '<p>We use essential cookies only. With your consent we’ll also enable ' +
-      'basic, anonymous analytics to improve the site. You can change this any time.</p>' +
+      'basic, anonymous analytics to improve the site. You can change this any time — ' +
+      'see our <a href="/privacy.html#cookies">Privacy&nbsp;Policy</a>.</p>' +
       '<div class="cookies-actions">' +
         '<button type="button" class="ck-btn ck-ghost" id="ck-essential">Essential only</button>' +
         '<button type="button" class="ck-btn ck-accept" id="ck-accept">Accept</button>' +
