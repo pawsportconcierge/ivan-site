@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Все шесть адресов канонические и совпадают с canonical на страницах:
+<!-- Все восемь адресов канонические и совпадают с canonical на страницах:
      https + www, индекс блога со слэшем. lastmod ставим по фактической дате
      правки файла — 25.08 правились все шесть (заголовки, описания, og,
      крошки, ссылка на статью с главной). -->
@@ -22,6 +22,11 @@
   <url>
     <loc>https://www.pawsportconcierge.com/blog/how-early-to-start-pet-flight.html</loc>
     <lastmod>2026-08-25</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.pawsportconcierge.com/blog/conflicting-pet-travel-information.html</loc>
+    <lastmod>2026-09-02</lastmod>
     <priority>0.6</priority>
   </url>
   <url>

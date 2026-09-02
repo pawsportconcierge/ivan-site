@@ -1219,8 +1219,8 @@ body{background:#FFFFFF}
           </div>
         </div>
         <div class="field field-hl">
-          <label for="heard">How did you hear about us?<span class="req" aria-hidden="true">*</span></label>
-          <select id="heard" name="heard_from" required>
+          <label for="heard">How did you hear about us? <span class="hint-soft">(optional)</span></label>
+          <select id="heard" name="heard_from">
             <option value="" selected>Choose one</option>
             <option>Instagram</option>
             <option>TikTok</option>
@@ -1353,7 +1353,7 @@ body{background:#FFFFFF}
       <div class="tlx-step">
         <div class="tlx-node"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></div>
         <div class="tlx-body">
-          <h3>We handle every document</h3>
+          <h3>We clear every document</h3>
           <p>Vet visits, government stamps, airline sign-off, destination rules &mdash; sequenced into one Flight File with the full timeline. You watch it fill up.</p>
           <!-- Ссылка в содержательном контексте: шаг про сроки и документы, статья —
                ровно про то, за сколько начинать. До 25.08 статья была сиротой:
@@ -1743,7 +1743,9 @@ form.addEventListener('submit', async (e) => {
   need.push({el: document.getElementById('name')});
   need.push({el: document.getElementById('phone'), ok: () => document.getElementById('phone').value.trim().length >= 7});
   need.push({el: document.getElementById('email'), ok: () => document.getElementById('email').value.includes('@')});
-  need.push({el: document.getElementById('heard'), ok: () => document.getElementById('heard').value !== ''});
+  /* «How did you hear about us» — необязательное с 02.09: поле работало на нашу
+     аналитику и стояло последним перед кнопкой. Атрибут required снят в разметке,
+     здесь снята парная JS-проверка — иначе кнопка блокировалась бы всё равно. */
   let badCount = 0;
   need.forEach(({el, ok}) => {
     const good = ok ? ok() : !!el.value.trim();
