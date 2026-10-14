@@ -987,7 +987,7 @@ body{background:#FFFFFF}
      от переноса не меняется; z-index 70 остаётся высшим после .skip. -->
 <p class="sr-only" id="ck-live" aria-live="polite"></p>
 <div class="cookies" id="cookies" role="dialog" aria-modal="false" aria-label="Cookie settings" tabindex="-1">
-  <p>We use essential cookies only. With your consent we&rsquo;ll also enable basic, anonymous analytics to improve the site. You can change this any time &mdash; see our <a href="privacy.html#cookies">Privacy&nbsp;Policy</a>.</p>
+  <p>This site sets no cookies of its own. With your consent we&rsquo;ll enable analytics (Google, Microsoft) and Meta&rsquo;s ad measurement. You can change this any time &mdash; see our <a href="privacy.html#cookies">Privacy&nbsp;Policy</a>.</p>
   <div class="cookies-actions">
     <button type="button" class="ck-btn ck-ghost" id="ck-essential">Essential only</button>
     <button type="button" class="ck-btn ck-accept" id="ck-accept">Accept</button>
@@ -1236,6 +1236,7 @@ body{background:#FFFFFF}
         <input type="hidden" name="utm_source" id="utm_source">
         <input type="hidden" name="utm_medium" id="utm_medium">
         <input type="hidden" name="utm_campaign" id="utm_campaign">
+        <input type="hidden" name="utm_content" id="utm_content">
         <input type="hidden" name="referrer" id="referrer">
         <p class="sr-only" id="form-status" role="status"></p>
         <button class="submit" type="submit">Plan my pet&rsquo;s flight</button>
@@ -1552,10 +1553,18 @@ const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbxYcurepdPrNzFfF
 
 /* ---- utm + referrer capture ---- */
 const qp = new URLSearchParams(location.search);
-['utm_source','utm_medium','utm_campaign'].forEach(k => {
+['utm_source','utm_medium','utm_campaign','utm_content'].forEach(k => {
   document.getElementById(k).value = qp.get(k) || '';
 });
 document.getElementById('referrer').value = document.referrer || '';
+
+/* ---- Meta: click id из рекламы ----
+   fbclid кладём на сессию (sessionStorage, в сеть не уходит): если человек
+   примет согласие не сразу, CAPI всё равно узнает, с какого клика он пришёл.
+   Отправляется в Meta только вместе с заявкой и только при согласии 'all'. */
+try { if (qp.get('fbclid')) sessionStorage.setItem('pw-fbclid', qp.get('fbclid') + '|' + Date.now()); } catch(e){}
+function readCookie(n){ var m = document.cookie.match('(?:^|; )' + n + '=([^;]*)'); return m ? decodeURIComponent(m[1]) : ''; }
+function fbcFromClick(){ try { var v = sessionStorage.getItem('pw-fbclid'); if (!v) return ''; var p = v.split('|'); return 'fb.1.' + p[1] + '.' + p[0]; } catch(e){ return ''; } }
 
 /* ---- analytics helper ---- */
 function track(event, params){ window.dataLayer = window.dataLayer || []; window.dataLayer.push(Object.assign({event}, params || {})); if (window.__ga4Loaded && window.gtag) { gtag('event', event, params || {}); } }
@@ -1778,6 +1787,16 @@ form.addEventListener('submit', async (e) => {
   data.legs = legs;
   data.route = legs.map(l => l.from + ' \u2192 ' + l.to).join('; ');
   data.submittedAt = new Date().toISOString();
+  /* Meta: один event_id у пикселя и у CAPI — Meta склеивает их в одну заявку.
+     Поля для Meta добавляем только при согласии 'all'. */
+  data.event_id = 'lead-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+  data.consent = window.__consent || '';
+  if (data.consent === 'all'){
+    data.page_url = location.href.split('#')[0];
+    data.user_agent = navigator.userAgent;
+    data.fbp = readCookie('_fbp');
+    data.fbc = readCookie('_fbc') || fbcFromClick();
+  }
 
   const btn = form.querySelector('.submit');
   btn.disabled = true;
@@ -1795,10 +1814,12 @@ form.addEventListener('submit', async (e) => {
 
   try {
     if (FORM_ENDPOINT){
+      const mail = Object.assign({}, data);
+      ['event_id','consent','page_url','user_agent','fbp','fbc'].forEach(k => delete mail[k]);
       const res = await fetch(FORM_ENDPOINT, {
         method: 'POST',
         headers: {'Content-Type':'application/json','Accept':'application/json'},
-        body: JSON.stringify(data)
+        body: JSON.stringify(mail)
       });
       if (!res.ok) throw new Error('endpoint ' + res.status);
     } else {
@@ -1816,6 +1837,9 @@ form.addEventListener('submit', async (e) => {
       no_ticket: !!data.noticket, days_to_departure: days,
       utm_source: data.utm_source || '(none)'
     });
+    if (data.consent === 'all' && window.fbq){
+      window.fbq('track', 'Lead', {content_category: data.need}, {eventID: data.event_id});
+    }
 
     document.getElementById('r-name').textContent = data.name;
     document.getElementById('r-route').textContent = window.__elseMode
@@ -2109,6 +2133,20 @@ if (window.matchMedia('(max-width: 920px)').matches){
     gtag('js', new Date());
     gtag('config', 'G-64W5X6RV2K');
   }
+  /* Пиксель Meta — только после 'all'. ID датасета «Pawsport Website» живёт
+     в ДВУХ местах: здесь и в assets/site.js — менять оба. Пусто — не грузится. */
+  var META_PIXEL_ID = '1737990440635437';
+  function loadMetaPixel(){
+    if (!META_PIXEL_ID || window.__metaLoaded) return;
+    window.__metaLoaded = true;
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    window.fbq('init', META_PIXEL_ID);
+    window.fbq('track', 'PageView');
+  }
   /* Фокус, Escape и анонс — теми же правилами, что в assets/site.js, чтобы
      баннер вёл себя одинаково на главной и на внутренних страницах. */
   var live = document.getElementById('ck-live');
@@ -2131,9 +2169,9 @@ if (window.matchMedia('(max-width: 920px)').matches){
     try { localStorage.setItem(KEY, v); } catch(e){}
     window.__consent = v;
     close();
-    if (v === 'all'){ loadClarity(); loadGA4(); }
+    if (v === 'all'){ loadClarity(); loadGA4(); loadMetaPixel(); }
   }
-  if (saved === 'all'){ loadClarity(); loadGA4(); }
+  if (saved === 'all'){ loadClarity(); loadGA4(); loadMetaPixel(); }
   if (!saved) open(null);
   var opener = document.getElementById('ck-open');
   if (opener) opener.addEventListener('click', function(){ open(opener); });

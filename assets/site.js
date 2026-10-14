@@ -11,8 +11,8 @@
         значения 'all' / 'essential', что на главной, поэтому согласие,
         данное на главной, здесь уже действует и баннер не появляется
         второй раз (и наоборот);
-     3. GA4 и Clarity грузятся ТОЛЬКО при согласии 'all' — до него ни одного
-        сетевого запроса к аналитике;
+     3. GA4, Clarity и пиксель Meta грузятся ТОЛЬКО при согласии 'all' — до
+        него ни одного сетевого запроса к аналитике и рекламе;
      4. сам баннер и ссылку «Cookie settings» рисует скриптом, а не копией
         разметки в каждом файле: подключение страницы — одна строка
         <script src="…/assets/site.js" defer></script>. Без JS элементы
@@ -30,6 +30,10 @@
   var KEY = 'pw-consent';
   var GA4_ID = 'G-64W5X6RV2K';
   var CLARITY_ID = 'xxqiuz1ged';
+  /* ID датасета «Pawsport Website» из Events Manager. Пусто — пиксель не
+     грузится вовсе. ID живёт в ДВУХ местах: здесь и в инлайне главной
+     (preview-hunt-club-v4.html) — менять оба. */
+  var META_PIXEL_ID = '1737990440635437';
 
   /* dataLayer заводим сразу: track() пишет в него независимо от согласия.
      Это память страницы, а не сеть — запросов отсюда не уходит. */
@@ -70,6 +74,22 @@
     window.gtag('config', GA4_ID);
   }
 
+  /* Пиксель Meta — стандартный загрузчик fbevents.js. Только после 'all'. */
+  function loadMetaPixel() {
+    if (!META_PIXEL_ID || window.__metaLoaded) return;
+    window.__metaLoaded = true;
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = [];
+      t = b.createElement(e); t.async = !0; t.src = v;
+      s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+    }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+    window.fbq('init', META_PIXEL_ID);
+    window.fbq('track', 'PageView');
+  }
+
   /* ── баннер согласия ────────────────────────────────────────────────── */
 
   /* aria-modal="false" — баннер ничего не блокирует, страница под ним рабочая.
@@ -78,8 +98,8 @@
   var BANNER =
     '<div class="cookies" id="cookies" role="dialog" aria-modal="false" ' +
          'aria-label="Cookie settings" tabindex="-1">' +
-      '<p>We use essential cookies only. With your consent we’ll also enable ' +
-      'basic, anonymous analytics to improve the site. You can change this any time — ' +
+      '<p>This site sets no cookies of its own. With your consent we’ll enable ' +
+      'analytics (Google, Microsoft) and Meta’s ad measurement. You can change this any time — ' +
       'see our <a href="/privacy.html#cookies">Privacy&nbsp;Policy</a>.</p>' +
       '<div class="cookies-actions">' +
         '<button type="button" class="ck-btn ck-ghost" id="ck-essential">Essential only</button>' +
@@ -108,7 +128,7 @@
     try { saved = localStorage.getItem(KEY); } catch (e) {}
     window.__consent = saved;
 
-    if (saved === 'all') { loadClarity(); loadGA4(); }
+    if (saved === 'all') { loadClarity(); loadGA4(); loadMetaPixel(); }
 
     var holder = document.createElement('div');
     holder.innerHTML = BANNER;
@@ -159,7 +179,7 @@
       try { localStorage.setItem(KEY, v); } catch (e) {}
       window.__consent = v;
       close();
-      if (v === 'all') { loadClarity(); loadGA4(); }
+      if (v === 'all') { loadClarity(); loadGA4(); loadMetaPixel(); }
     }
 
     document.getElementById('ck-essential')
