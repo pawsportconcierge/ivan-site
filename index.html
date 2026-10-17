@@ -1219,8 +1219,8 @@ body{background:#FFFFFF}
           </div>
         </div>
         <div class="field field-hl">
-          <label for="heard">How did you hear about us? <span class="hint-soft">(optional)</span></label>
-          <select id="heard" name="heard_from">
+          <label for="heard">How did you hear about us?<span class="req" aria-hidden="true">*</span></label>
+          <select id="heard" name="heard_from" required>
             <option value="" selected>Choose one</option>
             <option>Instagram</option>
             <option>TikTok</option>
@@ -1752,9 +1752,11 @@ form.addEventListener('submit', async (e) => {
   need.push({el: document.getElementById('name')});
   need.push({el: document.getElementById('phone'), ok: () => document.getElementById('phone').value.trim().length >= 7});
   need.push({el: document.getElementById('email'), ok: () => document.getElementById('email').value.includes('@')});
-  /* «How did you hear about us» — необязательное с 02.09: поле работало на нашу
-     аналитику и стояло последним перед кнопкой. Атрибут required снят в разметке,
-     здесь снята парная JS-проверка — иначе кнопка блокировалась бы всё равно. */
+  /* «How did you hear about us» — снова обязательное с 18.10. У полей этой формы
+     две точки контроля: атрибут required в разметке и парная проверка здесь —
+     без второй пустое «Choose one» ушло бы в заявку (form стоит novalidate).
+     Пустая опция даёт value="" — общей проверки value.trim() достаточно. */
+  need.push({el: document.getElementById('heard')});
   let badCount = 0;
   need.forEach(({el, ok}) => {
     const good = ok ? ok() : !!el.value.trim();
