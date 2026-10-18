@@ -199,7 +199,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 textarea{resize:none;height:88px;overflow-y:auto}
 .row{display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:end}
 .row .arrow{font-family:var(--mono);text-align:center;padding-bottom:12px;color:var(--camel);font-size:16px}
-.row3{display:grid;grid-template-columns:1.1fr 1.2fr .8fr;gap:10px}
+/* было 1.1fr 1.2fr .8fr: третья ячейка (вес) теперь несёт плитки lb|kg внутри
+   поля, при .8fr (≈108px) цифрам не оставалось места */
+.row3{display:grid;grid-template-columns:1fr 1.05fr 1.1fr;gap:10px}
 /* поля отрезка маршрута идут с inline margin:0, поэтому жёлоб под их ошибки
    резервирует сам .leg (padding не ломает align-items:end у кнопки удаления) */
 .leg{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;padding-bottom:23px}
@@ -237,6 +239,27 @@ textarea{resize:none;height:88px;overflow-y:auto}
 .chan:hover .tile{border-color:var(--camel)}
 .chan input:checked + .tile{border-color:var(--navy);background:var(--navy);color:var(--cream)}
 .chan input:focus-visible + .tile{outline:2px solid var(--focus);outline-offset:2px}
+/* ── вес: число, единицы lb|kg — радио-плитки .chan внутри поля справа ── */
+.unit-field{position:relative}
+.unit-field input{padding-right:80px}
+.unit-toggle{position:absolute;top:50%;right:5px;transform:translateY(-50%);display:flex;gap:3px}
+.unit-toggle .chan .tile{padding:5px 0;width:34px;font-size:11px;line-height:1.2;letter-spacing:0}
+/* ── телефон: селект кода страны (флаг + код) слева от номера. Селект сам
+   подбирает ширину по самой длинной опции; min-width:0 у номера нужен, чтобы
+   грид не раздувался на узком экране (652px и уже — одна колонка). ── */
+.phone-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px}
+/* height:44 — min-height у селекта даёт 45px из-за эмодзи-флага, а грид
+   растягивает по нему и номер; фиксируем высоту поля */
+.phone-row select{width:auto;height:44px;padding-left:8px;padding-right:4px}
+.phone-row input{min-width:0}
+/* ряд «Your name / Phone number» остаётся двухколоночным на любой ширине
+   (inline grid-template-columns), и на 600px и уже ячейка телефона — меньше
+   270px: селект (106px) и десятизначный номер рядом не помещаются, ставим
+   их в столбик. Замер: coworkers/scripts/test-form-fields.py */
+@media (max-width:600px){
+  .phone-row{grid-template-columns:1fr}
+  .phone-row select{width:100%}
+}
 /* Сообщение об ошибке выводится в жёлоб под полем и НЕ участвует в потоке:
    его появление больше не меняет высоту формы, поэтому кнопка Submit не уезжает
    из-под курсора, hero не растёт и фон hero не перекадрируется. */
@@ -1149,7 +1172,17 @@ body{background:#FFFFFF}
               <option>Dog</option><option>Cat</option><option>Other</option>
             </select>
             <input type="text" name="breed" placeholder="Breed" aria-label="Breed">
-            <input type="text" name="weight" placeholder="Weight, lb" aria-label="Weight" inputmode="numeric">
+            <!-- вес — отдельный .field внутри группы: у него своё сообщение об
+                 ошибке (диапазон 0.5–200). Единица уходит в заявку строкой
+                 «12 lb» / «5.5 kg», см. сборку data в submit. -->
+            <div class="field unit-field" style="margin:0">
+              <input type="text" name="weight" id="weight" placeholder="Weight" aria-label="Weight" inputmode="decimal" autocomplete="off">
+              <span class="unit-toggle" role="radiogroup" aria-label="Weight unit">
+                <label class="chan"><input type="radio" name="weight_unit" value="lb" checked><span class="tile">lb</span></label>
+                <label class="chan"><input type="radio" name="weight_unit" value="kg"><span class="tile">kg</span></label>
+              </span>
+              <span class="err-msg">Enter a weight between 0.5 and 200.</span>
+            </div>
           </div>
         </div>
         <div class="field">
@@ -1189,7 +1222,9 @@ body{background:#FFFFFF}
       </div>
       <div class="perf" aria-hidden="true"></div>
       <div class="file-body">
-        <div class="row3" style="grid-template-columns:1fr 1fr">
+        <!-- 1fr 1.3fr: в ячейке телефона теперь два контрола (код + номер),
+             на десктопе при 1fr 1fr номеру оставалось 83px -->
+        <div class="row3" style="grid-template-columns:1fr 1.3fr">
           <div class="field">
             <label for="name">Your name<span class="req" aria-hidden="true">*</span></label>
             <input type="text" id="name" name="name" placeholder="Anna" autocomplete="name" required />
@@ -1197,8 +1232,15 @@ body{background:#FFFFFF}
           </div>
           <div class="field">
             <label for="phone">Phone number<span class="req" aria-hidden="true">*</span></label>
-            <input type="tel" id="phone" name="phone" placeholder="+1 (305) &hellip;" autocomplete="tel" inputmode="tel" required />
-            <span class="err-msg">Enter a phone number.</span>
+            <!-- код страны — селект с флагом и кодом, список стран в JS (fillCountryCodes).
+                 Статичная опция US — чтобы селект не был пустым до скрипта.
+                 В поле номера только цифры; «+34 …» при вставке разбирается скриптом
+                 и переставляет селект. В заявку: phone в E.164 + phone_country (ISO-2). -->
+            <div class="phone-row">
+              <select id="phone-cc" name="phone_cc" aria-label="Country code" autocomplete="tel-country-code"><option value="US" selected>&#x1F1FA;&#x1F1F8; +1</option></select>
+              <input type="tel" id="phone" name="phone" placeholder="(305) 555-0123" autocomplete="tel-national" inputmode="tel" required />
+            </div>
+            <span class="err-msg">Enter a phone number with country code.</span>
           </div>
         </div>
         <div class="field">
@@ -1604,14 +1646,22 @@ function updateLegState(){
 var __errSeq = 0;
 function wireErrors(root){
   (root || document).querySelectorAll('.field').forEach(function(field){
-    var msg = field.querySelector('.err-msg');
+    /* :scope > — у группы «Your pet» есть вложенное поле веса со своей ошибкой,
+       она не должна цепляться к селекту типа питомца */
+    var msg = field.querySelector(':scope > .err-msg');
     if (!msg) return;
-    var ctrl = field.querySelector('input:not([type=hidden]), select, textarea, button.date-btn');
-    if (!ctrl) return;
+    /* все контролы поля (у телефона их два: код страны и номер), кроме радио
+       единиц веса и контролов вложенных полей */
+    var ctrls = Array.prototype.filter.call(
+      field.querySelectorAll('input:not([type=hidden]):not([type=radio]), select, textarea, button.date-btn'),
+      function(c){ return c.closest('.field') === field; });
+    if (!ctrls.length) return;
     if (!msg.id) msg.id = 'err-auto-' + (++__errSeq);
-    var d = (ctrl.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
-    if (d.indexOf(msg.id) === -1) d.push(msg.id);
-    ctrl.setAttribute('aria-describedby', d.join(' '));
+    ctrls.forEach(function(ctrl){
+      var d = (ctrl.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+      if (d.indexOf(msg.id) === -1) d.push(msg.id);
+      ctrl.setAttribute('aria-describedby', d.join(' '));
+    });
   });
 }
 wireErrors(document);
@@ -1724,6 +1774,137 @@ noticket.addEventListener('change', () => {
   if (noticket.checked){ dateISO.value = ''; dateBtn.textContent = 'Select a date'; dateBtn.classList.remove('set'); openCal(false); }
 });
 
+/* ---- phone: country code + national number ----
+   Список ISO-2 → телефонный код встроен (внешних библиотек не подключаем).
+   Формат записи: ISO|код|название|префиксы-для-распознавания. Четвёртое поле —
+   только у стран плана NANP (+1): по нему «+1 876 …» узнаётся как Ямайка, а
+   сам код у них остаётся «1», номер — десять цифр после него.
+   У общего кода несколько стран (+7 — RU и KZ, +44 — GB и коронные владения,
+   +262 — RE и YT …): при вставке «+7 …» выбирается основная страна из
+   COUNTRY_PRIMARY, остальные берутся в порядке списка. Канада по «+1» не
+   отличается от США без таблицы кодов зон — выбирается US, человек переключит. */
+const COUNTRY_DATA = 'US|1|United States,CA|1|Canada,MX|52|Mexico,CO|57|Colombia,BR|55|Brazil,AR|54|Argentina,ES|34|Spain,GB|44|United Kingdom,DE|49|Germany,FR|33|France,IT|39|Italy,PT|351|Portugal,'
++ 'AF|93|Afghanistan,AL|355|Albania,DZ|213|Algeria,AS|1|American Samoa|1684,AD|376|Andorra,AO|244|Angola,AI|1|Anguilla|1264,AG|1|Antigua and Barbuda|1268,AM|374|Armenia,AW|297|Aruba,AU|61|Australia,AT|43|Austria,AZ|994|Azerbaijan,'
++ 'BS|1|Bahamas|1242,BH|973|Bahrain,BD|880|Bangladesh,BB|1|Barbados|1246,BY|375|Belarus,BE|32|Belgium,BZ|501|Belize,BJ|229|Benin,BM|1|Bermuda|1441,BT|975|Bhutan,BO|591|Bolivia,BA|387|Bosnia and Herzegovina,BW|267|Botswana,BN|673|Brunei,BG|359|Bulgaria,BF|226|Burkina Faso,BI|257|Burundi,'
++ 'KH|855|Cambodia,CM|237|Cameroon,CV|238|Cape Verde,KY|1|Cayman Islands|1345,CF|236|Central African Republic,TD|235|Chad,CL|56|Chile,CN|86|China,CX|61|Christmas Island,CC|61|Cocos Islands,KM|269|Comoros,CG|242|Congo,CD|243|Congo (DRC),CK|682|Cook Islands,CR|506|Costa Rica,CI|225|Côte d’Ivoire,HR|385|Croatia,CU|53|Cuba,CW|599|Curaçao,CY|357|Cyprus,CZ|420|Czechia,'
++ 'DK|45|Denmark,DJ|253|Djibouti,DM|1|Dominica|1767,DO|1|Dominican Republic|1809;1829;1849,EC|593|Ecuador,EG|20|Egypt,SV|503|El Salvador,GQ|240|Equatorial Guinea,ER|291|Eritrea,EE|372|Estonia,SZ|268|Eswatini,ET|251|Ethiopia,'
++ 'FK|500|Falkland Islands,FO|298|Faroe Islands,FJ|679|Fiji,FI|358|Finland,AX|358|Åland Islands,GF|594|French Guiana,PF|689|French Polynesia,GA|241|Gabon,GM|220|Gambia,GE|995|Georgia,GH|233|Ghana,GI|350|Gibraltar,GR|30|Greece,GL|299|Greenland,GD|1|Grenada|1473,GP|590|Guadeloupe,BL|590|Saint Barthélemy,MF|590|Saint Martin,GU|1|Guam|1671,GT|502|Guatemala,GG|44|Guernsey,GN|224|Guinea,GW|245|Guinea-Bissau,GY|592|Guyana,'
++ 'HT|509|Haiti,HN|504|Honduras,HK|852|Hong Kong,HU|36|Hungary,IS|354|Iceland,IN|91|India,ID|62|Indonesia,IR|98|Iran,IQ|964|Iraq,IE|353|Ireland,IM|44|Isle of Man,IL|972|Israel,JM|1|Jamaica|1876;1658,JP|81|Japan,JE|44|Jersey,JO|962|Jordan,'
++ 'KZ|7|Kazakhstan,KE|254|Kenya,KI|686|Kiribati,KP|850|North Korea,KR|82|South Korea,KW|965|Kuwait,KG|996|Kyrgyzstan,LA|856|Laos,LV|371|Latvia,LB|961|Lebanon,LS|266|Lesotho,LR|231|Liberia,LY|218|Libya,LI|423|Liechtenstein,LT|370|Lithuania,LU|352|Luxembourg,'
++ 'MO|853|Macao,MG|261|Madagascar,MW|265|Malawi,MY|60|Malaysia,MV|960|Maldives,ML|223|Mali,MT|356|Malta,MH|692|Marshall Islands,MQ|596|Martinique,MR|222|Mauritania,MU|230|Mauritius,YT|262|Mayotte,FM|691|Micronesia,MD|373|Moldova,MC|377|Monaco,MN|976|Mongolia,ME|382|Montenegro,MS|1|Montserrat|1664,MA|212|Morocco,EH|212|Western Sahara,MZ|258|Mozambique,MM|95|Myanmar,'
++ 'NA|264|Namibia,NR|674|Nauru,NP|977|Nepal,NL|31|Netherlands,BQ|599|Caribbean Netherlands,NC|687|New Caledonia,NZ|64|New Zealand,NI|505|Nicaragua,NE|227|Niger,NG|234|Nigeria,NU|683|Niue,NF|672|Norfolk Island,MK|389|North Macedonia,MP|1|Northern Mariana Islands|1670,NO|47|Norway,SJ|47|Svalbard and Jan Mayen,OM|968|Oman,'
++ 'PK|92|Pakistan,PW|680|Palau,PS|970|Palestine,PA|507|Panama,PG|675|Papua New Guinea,PY|595|Paraguay,PE|51|Peru,PH|63|Philippines,PL|48|Poland,PR|1|Puerto Rico|1787;1939,QA|974|Qatar,RE|262|Réunion,RO|40|Romania,RU|7|Russia,RW|250|Rwanda,'
++ 'SH|290|Saint Helena,KN|1|Saint Kitts and Nevis|1869,LC|1|Saint Lucia|1758,PM|508|Saint Pierre and Miquelon,VC|1|Saint Vincent and the Grenadines|1784,WS|685|Samoa,SM|378|San Marino,ST|239|São Tomé and Príncipe,SA|966|Saudi Arabia,SN|221|Senegal,RS|381|Serbia,SC|248|Seychelles,SL|232|Sierra Leone,SG|65|Singapore,SX|1|Sint Maarten|1721,SK|421|Slovakia,SI|386|Slovenia,SB|677|Solomon Islands,SO|252|Somalia,ZA|27|South Africa,SS|211|South Sudan,LK|94|Sri Lanka,SD|249|Sudan,SR|597|Suriname,SE|46|Sweden,CH|41|Switzerland,SY|963|Syria,'
++ 'TW|886|Taiwan,TJ|992|Tajikistan,TZ|255|Tanzania,TH|66|Thailand,TL|670|Timor-Leste,TG|228|Togo,TK|690|Tokelau,TO|676|Tonga,TT|1|Trinidad and Tobago|1868,TN|216|Tunisia,TR|90|Türkiye,TM|993|Turkmenistan,TC|1|Turks and Caicos Islands|1649,TV|688|Tuvalu,'
++ 'UG|256|Uganda,UA|380|Ukraine,AE|971|United Arab Emirates,UY|598|Uruguay,UZ|998|Uzbekistan,VU|678|Vanuatu,VA|39|Vatican City,VE|58|Venezuela,VN|84|Vietnam,VG|1|British Virgin Islands|1284,VI|1|U.S. Virgin Islands|1340,WF|681|Wallis and Futuna,YE|967|Yemen,ZM|260|Zambia,ZW|263|Zimbabwe';
+const COUNTRY_TOP = 12; /* первые 12 записей — наверху списка, остальные по алфавиту */
+const COUNTRIES = COUNTRY_DATA.split(',').map(function(r){
+  var f = r.split('|');
+  return {iso: f[0], dial: f[1], name: f[2], detect: f[3] ? f[3].split(';') : []};
+});
+const COUNTRY_PRIMARY = ['US','RU','GB','AU','NO','FI','MA','RE','GP','CW','IT'];
+const COUNTRY_BY_ISO = {};
+const DIAL_TO_ISO = {}; /* префикс цифр → ISO; первая встреченная запись выигрывает */
+COUNTRIES.forEach(function(c){ COUNTRY_BY_ISO[c.iso] = c; });
+COUNTRY_PRIMARY.map(function(iso){ return COUNTRY_BY_ISO[iso]; }).concat(COUNTRIES).forEach(function(c){
+  c.detect.forEach(function(p){ if (!DIAL_TO_ISO[p]) DIAL_TO_ISO[p] = c.iso; });
+  if (!DIAL_TO_ISO[c.dial]) DIAL_TO_ISO[c.dial] = c.iso;
+});
+function flagOf(iso){
+  return String.fromCodePoint(0x1F1E6 + iso.charCodeAt(0) - 65, 0x1F1E6 + iso.charCodeAt(1) - 65);
+}
+function dialLabel(c){
+  /* у стран NANP показываем «+1 876», код при этом остаётся «1» */
+  return c.detect.length ? '+1 ' + c.detect[0].slice(1) : '+' + c.dial;
+}
+const phoneCC = document.getElementById('phone-cc');
+const phoneNum = document.getElementById('phone');
+function fillCountryCodes(){
+  var top = COUNTRIES.slice(0, COUNTRY_TOP);
+  var rest = COUNTRIES.slice(COUNTRY_TOP).sort(function(a, b){ return a.name.localeCompare(b.name, 'en'); });
+  phoneCC.innerHTML = '';
+  top.concat(rest).forEach(function(c){
+    var o = document.createElement('option');
+    o.value = c.iso;
+    o.textContent = flagOf(c.iso) + ' ' + dialLabel(c);
+    o.title = c.name;
+    phoneCC.appendChild(o);
+  });
+  phoneCC.value = 'US';
+}
+fillCountryCodes();
+/* «+34 612 345 678» или «0034 …» → {iso, national}; иначе null */
+function parseIntlPhone(v){
+  var s = String(v).replace(/[^\d+]/g, '');
+  if (s.indexOf('+') === 0) s = s.slice(1);
+  else if (s.indexOf('00') === 0) s = s.slice(2);
+  else return null;
+  s = s.replace(/\+/g, '');
+  for (var len = 4; len >= 1; len--){
+    var iso = DIAL_TO_ISO[s.slice(0, len)];
+    if (iso) return {iso: iso, national: s.slice(COUNTRY_BY_ISO[iso].dial.length)};
+  }
+  return null;
+}
+function phoneDigits(){ return phoneNum.value.replace(/\D/g, ''); }
+/* E.164 + ISO-2; display — для квитанции */
+function phoneParts(){
+  var c = COUNTRY_BY_ISO[phoneCC.value];
+  var n = phoneDigits();
+  if (!c || !n) return {e164: '', iso: '', display: ''};
+  var disp = (c.dial === '1' && n.length === 10)
+    ? '+1 (' + n.slice(0, 3) + ') ' + n.slice(3, 6) + '-' + n.slice(6)
+    : '+' + c.dial + ' ' + n;
+  return {e164: '+' + c.dial + n, iso: c.iso, display: disp};
+}
+/* обязательны и код, и номер: 6–14 цифр, всего с кодом не больше 15 (E.164) */
+function phoneValid(){
+  var c = COUNTRY_BY_ISO[phoneCC.value];
+  var n = phoneDigits();
+  return !!c && n.length >= 6 && n.length <= 14 && (c.dial.length + n.length) <= 15;
+}
+phoneNum.addEventListener('beforeinput', function(e){
+  if (e.inputType === 'insertText' && e.data && !/^[\d+\s().-]+$/.test(e.data)) e.preventDefault();
+});
+phoneNum.addEventListener('input', function(){
+  var v = phoneNum.value;
+  if (/^\s*(\+|00)/.test(v)){
+    var p = parseIntlPhone(v);
+    if (p){ phoneCC.value = p.iso; phoneNum.value = p.national; return; }
+  }
+  var d = v.replace(/\D/g, '');
+  if (d !== v) phoneNum.value = d;
+});
+phoneCC.addEventListener('change', function(){ phoneCC.closest('.field').classList.remove('has-error'); });
+
+/* ---- weight: only a number, 0.5–200, unit lb|kg ---- */
+const weightEl = document.getElementById('weight');
+weightEl.addEventListener('beforeinput', function(e){
+  if (e.inputType === 'insertText' && e.data && !/^[\d.,]+$/.test(e.data)) e.preventDefault();
+});
+weightEl.addEventListener('input', function(){
+  var v = weightEl.value.replace(/,/g, '.').replace(/[^\d.]/g, '');
+  var i = v.indexOf('.');
+  if (i !== -1) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/\./g, '');
+  if (v !== weightEl.value) weightEl.value = v;
+});
+function weightValue(){ /* '' или нормализованное число: «012.50» → «12.5» */
+  var v = weightEl.value.trim();
+  if (!v) return '';
+  var n = parseFloat(v);
+  return isFinite(n) ? String(n) : v;
+}
+function weightValid(){
+  var v = weightEl.value.trim();
+  if (!v) return true; /* пустой вес допустим */
+  var n = parseFloat(v);
+  return isFinite(n) && n >= 0.5 && n <= 200;
+}
+function weightUnit(){
+  var r = document.querySelector('input[name=weight_unit]:checked');
+  return r ? r.value : 'lb';
+}
+
 /* ---- form_start (once) ---- */
 const form = document.getElementById('request');
 let started = false;
@@ -1747,7 +1928,8 @@ form.addEventListener('submit', async (e) => {
     need.push({el: c2, ok: () => c2.value.trim().length >= 5});
   }
   need.push({el: document.getElementById('name')});
-  need.push({el: document.getElementById('phone'), ok: () => document.getElementById('phone').value.trim().length >= 7});
+  need.push({el: phoneNum, ok: phoneValid});
+  if (!window.__elseMode) need.push({el: weightEl, ok: weightValid});
   need.push({el: document.getElementById('email'), ok: () => document.getElementById('email').value.includes('@')});
   /* «How did you hear about us» — снова обязательное с 18.10. У полей этой формы
      две точки контроля: атрибут required в разметке и парная проверка здесь —
@@ -1776,6 +1958,15 @@ form.addEventListener('submit', async (e) => {
   if (formStatus) formStatus.textContent = '';
 
   const data = Object.fromEntries(new FormData(form).entries());
+  /* вес — строкой с единицей: «12 lb» / «5.5 kg»; пустой остаётся пустым.
+     Monday склеивает Pet как «Dog, Beagle, 12 lb», Formspree получает ту же строку. */
+  delete data.weight_unit;
+  if ('weight' in data) data.weight = weightValue() ? weightValue() + ' ' + weightUnit() : '';
+  /* телефон — E.164 плюс страна отдельным полем (Monday: phone + countryShortName) */
+  const phoneInfo = phoneParts();
+  data.phone = phoneInfo.e164;
+  data.phone_country = phoneInfo.iso;
+  delete data.phone_cc;
   var _chs = Array.from(document.querySelectorAll('input[name=channel]:checked')).map(function(c){return c.value});
   data.channel = _chs.length ? _chs.join(' + ') : 'Phone & Email';
   data.need = window.__elseMode ? 'Concierge / other' : 'Travel';
@@ -1850,8 +2041,8 @@ form.addEventListener('submit', async (e) => {
     const petBreed = window.__elseMode ? data.breed2 : data.breed;
     document.getElementById('r-pet').textContent = (petType || '\u2014')
       + (petBreed ? ' \u00b7 ' + petBreed : '')
-      + (data.weight ? ' \u00b7 ' + data.weight + ' lb' : '');
-    document.getElementById('r-channel').textContent = data.channel + ' \u00b7 ' + data.phone;
+      + (data.weight ? ' \u00b7 ' + data.weight : '');
+    document.getElementById('r-channel').textContent = data.channel + ' \u00b7 ' + phoneInfo.display;
     document.getElementById('cleared-msg').textContent =
       'Your concierge will reach you on ' + data.channel + ' within 15 minutes, 8am\u201310pm ET.';
     /* Оверлей перекрывает карточку формы — делаем содержимое под ним inert,
