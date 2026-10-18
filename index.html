@@ -199,9 +199,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 textarea{resize:none;height:88px;overflow-y:auto}
 .row{display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:end}
 .row .arrow{font-family:var(--mono);text-align:center;padding-bottom:12px;color:var(--camel);font-size:16px}
-/* было 1.1fr 1.2fr .8fr: третья ячейка (вес) теперь несёт плитки lb|kg внутри
-   поля, при .8fr (≈108px) цифрам не оставалось места */
-.row3{display:grid;grid-template-columns:1fr 1.05fr 1.1fr;gap:10px}
+/* было 1.1fr 1.2fr .8fr: третья ячейка (вес) несёт плитки lb|kg внутри поля,
+   ей нужно место под цифры и под целый placeholder «Weight» (замер: test-form-fields.py) */
+.row3{display:grid;grid-template-columns:.95fr 1fr 1.15fr;gap:10px}
 /* поля отрезка маршрута идут с inline margin:0, поэтому жёлоб под их ошибки
    резервирует сам .leg (padding не ломает align-items:end у кнопки удаления) */
 .leg{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;padding-bottom:23px}
@@ -239,27 +239,21 @@ textarea{resize:none;height:88px;overflow-y:auto}
 .chan:hover .tile{border-color:var(--camel)}
 .chan input:checked + .tile{border-color:var(--navy);background:var(--navy);color:var(--cream)}
 .chan input:focus-visible + .tile{outline:2px solid var(--focus);outline-offset:2px}
-/* ── вес: число, единицы lb|kg — радио-плитки .chan внутри поля справа ── */
+/* ── вес: число, единицы lb|kg — радио-плитки .chan внутри поля справа.
+   Плитки 28px + зазор 2px + отступ 5px = 63px; padding-right поля 66px,
+   чтобы placeholder «Weight» (≈52px при 15px Inter) не обрезался. ── */
 .unit-field{position:relative}
-.unit-field input{padding-right:80px}
-.unit-toggle{position:absolute;top:50%;right:5px;transform:translateY(-50%);display:flex;gap:3px}
-.unit-toggle .chan .tile{padding:5px 0;width:34px;font-size:11px;line-height:1.2;letter-spacing:0}
-/* ── телефон: селект кода страны (флаг + код) слева от номера. Селект сам
-   подбирает ширину по самой длинной опции; min-width:0 у номера нужен, чтобы
-   грид не раздувался на узком экране (652px и уже — одна колонка). ── */
+.unit-field input{padding-right:66px}
+.unit-toggle{position:absolute;top:50%;right:5px;transform:translateY(-50%);display:flex;gap:2px}
+.unit-toggle .chan .tile{padding:4px 0;width:28px;font-size:11px;line-height:1.2;letter-spacing:0}
+/* ── телефон: своя строка во всю ширину под именем. Селект кода страны
+   (флаг + код) компактный — ширину задаёт самая длинная опция («+1 876»),
+   padding минимальный; min-width:0 у номера, чтобы грид не раздувался. ── */
 .phone-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px}
 /* height:44 — min-height у селекта даёт 45px из-за эмодзи-флага, а грид
    растягивает по нему и номер; фиксируем высоту поля */
-.phone-row select{width:auto;height:44px;padding-left:8px;padding-right:4px}
+.phone-row select{width:auto;height:44px;padding-left:6px;padding-right:2px}
 .phone-row input{min-width:0}
-/* ряд «Your name / Phone number» остаётся двухколоночным на любой ширине
-   (inline grid-template-columns), и на 600px и уже ячейка телефона — меньше
-   270px: селект (106px) и десятизначный номер рядом не помещаются, ставим
-   их в столбик. Замер: coworkers/scripts/test-form-fields.py */
-@media (max-width:600px){
-  .phone-row{grid-template-columns:1fr}
-  .phone-row select{width:100%}
-}
 /* Сообщение об ошибке выводится в жёлоб под полем и НЕ участвует в потоке:
    его появление больше не меняет высоту формы, поэтому кнопка Submit не уезжает
    из-под курсора, hero не растёт и фон hero не перекадрируется. */
@@ -1222,15 +1216,22 @@ body{background:#FFFFFF}
       </div>
       <div class="perf" aria-hidden="true"></div>
       <div class="file-body">
-        <!-- 1fr 1.3fr: в ячейке телефона теперь два контрола (код + номер),
-             на десктопе при 1fr 1fr номеру оставалось 83px -->
-        <div class="row3" style="grid-template-columns:1fr 1.3fr">
+        <!-- имя — два поля в одном ряду (inline 1fr 1fr держит две колонки и на
+             мобильном). В заявку уходят first_name, last_name и склеенное
+             name = «First Last» — Apps Script, Monday (Name) и Formspree читают name. -->
+        <div class="row3" style="grid-template-columns:1fr 1fr">
           <div class="field">
-            <label for="name">Your name<span class="req" aria-hidden="true">*</span></label>
-            <input type="text" id="name" name="name" placeholder="Anna" autocomplete="name" required />
-            <span class="err-msg">Enter your name.</span>
+            <label for="first_name">First name<span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="first_name" name="first_name" placeholder="Anna" autocomplete="given-name" required />
+            <span class="err-msg">Enter your first name.</span>
           </div>
           <div class="field">
+            <label for="last_name">Last name<span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="last_name" name="last_name" placeholder="Garc&iacute;a" autocomplete="family-name" required />
+            <span class="err-msg">Enter your last name.</span>
+          </div>
+        </div>
+        <div class="field">
             <label for="phone">Phone number<span class="req" aria-hidden="true">*</span></label>
             <!-- код страны — селект с флагом и кодом, список стран в JS (fillCountryCodes).
                  Статичная опция US — чтобы селект не был пустым до скрипта.
@@ -1241,7 +1242,6 @@ body{background:#FFFFFF}
               <input type="tel" id="phone" name="phone" placeholder="(305) 555-0123" autocomplete="tel-national" inputmode="tel" required />
             </div>
             <span class="err-msg">Enter a phone number with country code.</span>
-          </div>
         </div>
         <div class="field">
           <label for="email">Email<span class="req" aria-hidden="true">*</span></label>
@@ -1828,11 +1828,21 @@ function fillCountryCodes(){
     o.value = c.iso;
     o.textContent = flagOf(c.iso) + ' ' + dialLabel(c);
     o.title = c.name;
+    /* defaultSelected — чтобы form.reset() и восстановление состояния формы
+       браузером возвращали US, а не первую опцию отсортированного хвоста (AX) */
+    if (c.iso === 'US') o.defaultSelected = true;
     phoneCC.appendChild(o);
   });
   phoneCC.value = 'US';
 }
 fillCountryCodes();
+/* Браузер может восстановить сохранённое состояние селекта уже после скрипта
+   (перезагрузка, bfcache): при показе страницы возвращаем US, если человек
+   селект не трогал в этой сессии страницы */
+phoneCC.addEventListener('change', function(){ phoneCC.dataset.touched = '1'; });
+window.addEventListener('pageshow', function(){
+  if (!phoneCC.dataset.touched && phoneCC.value !== 'US') phoneCC.value = 'US';
+});
 /* «+34 612 345 678» или «0034 …» → {iso, national}; иначе null */
 function parseIntlPhone(v){
   var s = String(v).replace(/[^\d+]/g, '');
@@ -1870,7 +1880,7 @@ phoneNum.addEventListener('input', function(){
   var v = phoneNum.value;
   if (/^\s*(\+|00)/.test(v)){
     var p = parseIntlPhone(v);
-    if (p){ phoneCC.value = p.iso; phoneNum.value = p.national; return; }
+    if (p){ phoneCC.value = p.iso; phoneCC.dataset.touched = '1'; phoneNum.value = p.national; return; }
   }
   var d = v.replace(/\D/g, '');
   if (d !== v) phoneNum.value = d;
@@ -1927,7 +1937,8 @@ form.addEventListener('submit', async (e) => {
     const c2 = document.getElementById('case2');
     need.push({el: c2, ok: () => c2.value.trim().length >= 5});
   }
-  need.push({el: document.getElementById('name')});
+  need.push({el: document.getElementById('first_name')});
+  need.push({el: document.getElementById('last_name')});
   need.push({el: phoneNum, ok: phoneValid});
   if (!window.__elseMode) need.push({el: weightEl, ok: weightValid});
   need.push({el: document.getElementById('email'), ok: () => document.getElementById('email').value.includes('@')});
@@ -1958,6 +1969,11 @@ form.addEventListener('submit', async (e) => {
   if (formStatus) formStatus.textContent = '';
 
   const data = Object.fromEntries(new FormData(form).entries());
+  /* имя: first_name и last_name уходят отдельно, name — «First Last», чтобы
+     Apps Script (d.name), колонка Name в Monday и Formspree работали как раньше */
+  data.first_name = (data.first_name || '').trim();
+  data.last_name = (data.last_name || '').trim();
+  data.name = (data.first_name + ' ' + data.last_name).trim();
   /* вес — строкой с единицей: «12 lb» / «5.5 kg»; пустой остаётся пустым.
      Monday склеивает Pet как «Dog, Beagle, 12 lb», Formspree получает ту же строку. */
   delete data.weight_unit;
@@ -2074,7 +2090,7 @@ form.addEventListener('submit', async (e) => {
       form.querySelectorAll('.has-error').forEach(function(f){ f.classList.remove('has-error'); });
       btn.disabled = false;
       btn.textContent = btnText;
-      focusWithoutJump(form.querySelector('input[name=name], #name'));
+      focusWithoutJump(form.querySelector('#first_name'));
     };
   } catch (err){
     console.error(err);
