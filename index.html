@@ -246,6 +246,18 @@ textarea{resize:none;height:88px;overflow-y:auto}
 .unit-field input{padding-right:66px}
 .unit-toggle{position:absolute;top:50%;right:5px;transform:translateY(-50%);display:flex;gap:2px}
 .unit-toggle .chan .tile{padding:4px 0;width:28px;font-size:11px;line-height:1.2;letter-spacing:0}
+/* ── блок «Your pet» — две строки: ≥652px [тип | имя | порода] и [вес | возраст]
+   (во вкладке Other services — [город | возраст]); ≤651px порода уходит на свою
+   строку: [тип | имя], [порода], [вес | возраст]. Замер: test-form-fields.py ── */
+.pet-row{display:grid;gap:10px}
+.pet-row-a{grid-template-columns:.8fr 1fr 1.1fr}
+.pet-row-b{grid-template-columns:1fr 1fr;margin-top:10px}
+@media (max-width:651px){
+  .pet-row-a{grid-template-columns:1fr 1fr}
+  .pet-row-a .pet-breed{grid-column:1/-1}
+}
+/* уже 360px ячейка веса (≈124px) не вмещает «Weight» рядом с плитками — отдаём ей больше */
+@media (max-width:359px){ .pet-row-b{grid-template-columns:1.1fr .9fr} }
 /* ── телефон: своя строка во всю ширину под именем. Селект кода страны
    (флаг + код) компактный — ширину задаёт самая длинная опция («+1 876»),
    padding минимальный; min-width:0 у номера, чтобы грид не раздувался. ── */
@@ -1161,14 +1173,17 @@ body{background:#FFFFFF}
              поэтому role=group + aria-labelledby вместо <label for> -->
         <div class="field" role="group" aria-labelledby="pet-label">
           <span class="field-label" id="pet-label">Your pet<span class="req" aria-hidden="true">*</span></span>
-          <div class="row3">
+          <div class="pet-row pet-row-a">
             <select name="pet" aria-label="Pet type">
               <option>Dog</option><option>Cat</option><option>Other</option>
             </select>
-            <input type="text" name="breed" placeholder="Breed" aria-label="Breed">
-            <!-- вес — отдельный .field внутри группы: у него своё сообщение об
-                 ошибке (диапазон 0.5–200). Единица уходит в заявку строкой
-                 «12 lb» / «5.5 kg», см. сборку data в submit. -->
+            <input type="text" name="pet_name" id="pet_name" placeholder="Luna" aria-label="Pet name" autocomplete="off">
+            <input type="text" name="breed" placeholder="Breed" aria-label="Breed" class="pet-breed">
+          </div>
+          <div class="pet-row pet-row-b">
+            <!-- вес и возраст — отдельные .field внутри группы: у каждого своё
+                 сообщение об ошибке. Единица уходит в заявку строкой
+                 «12 lb» / «5.5 kg», «3 yrs» / «10 mo», см. сборку data в submit. -->
             <div class="field unit-field" style="margin:0">
               <input type="text" name="weight" id="weight" placeholder="Weight" aria-label="Weight" inputmode="decimal" autocomplete="off">
               <span class="unit-toggle" role="radiogroup" aria-label="Weight unit">
@@ -1176,6 +1191,14 @@ body{background:#FFFFFF}
                 <label class="chan"><input type="radio" name="weight_unit" value="kg"><span class="tile">kg</span></label>
               </span>
               <span class="err-msg">Enter a weight between 0.5 and 200.</span>
+            </div>
+            <div class="field unit-field" style="margin:0">
+              <input type="text" name="age" id="age" placeholder="Age" aria-label="Age" inputmode="decimal" autocomplete="off">
+              <span class="unit-toggle" role="radiogroup" aria-label="Age unit">
+                <label class="chan"><input type="radio" name="age_unit" value="yrs" checked><span class="tile">yrs</span></label>
+                <label class="chan"><input type="radio" name="age_unit" value="mo"><span class="tile">mo</span></label>
+              </span>
+              <span class="err-msg">Enter an age: 0.1&ndash;30 yrs or 1&ndash;24 mo.</span>
             </div>
           </div>
         </div>
@@ -1199,12 +1222,25 @@ body{background:#FFFFFF}
         <div class="pane-spacer" aria-hidden="true"></div>
         <div class="field" role="group" aria-labelledby="pet2-label">
           <span class="field-label" id="pet2-label">Your pet</span>
-          <div class="row3">
+          <!-- те же поля, что во вкладке Flight (кроме веса): в заявке они
+               нормализуются в pet_name и age той вкладки, которую заполняли -->
+          <div class="pet-row pet-row-a">
             <select name="pet2" aria-label="Pet type">
               <option>Dog</option><option>Cat</option><option>Other</option>
             </select>
-            <input type="text" name="breed2" placeholder="Breed" aria-label="Breed" />
+            <input type="text" name="pet_name2" id="pet_name2" placeholder="Luna" aria-label="Pet name" autocomplete="off">
+            <input type="text" name="breed2" placeholder="Breed" aria-label="Breed" class="pet-breed" />
+          </div>
+          <div class="pet-row pet-row-b">
             <input type="text" name="city" placeholder="City" aria-label="City" />
+            <div class="field unit-field" style="margin:0">
+              <input type="text" name="age2" id="age2" placeholder="Age" aria-label="Age" inputmode="decimal" autocomplete="off">
+              <span class="unit-toggle" role="radiogroup" aria-label="Age unit">
+                <label class="chan"><input type="radio" name="age_unit2" value="yrs" checked><span class="tile">yrs</span></label>
+                <label class="chan"><input type="radio" name="age_unit2" value="mo"><span class="tile">mo</span></label>
+              </span>
+              <span class="err-msg">Enter an age: 0.1&ndash;30 yrs or 1&ndash;24 mo.</span>
+            </div>
           </div>
         </div>
         <div class="field">
@@ -1887,32 +1923,51 @@ phoneNum.addEventListener('input', function(){
 });
 phoneCC.addEventListener('change', function(){ phoneCC.closest('.field').classList.remove('has-error'); });
 
-/* ---- weight: only a number, 0.5–200, unit lb|kg ---- */
-const weightEl = document.getElementById('weight');
-weightEl.addEventListener('beforeinput', function(e){
-  if (e.inputType === 'insertText' && e.data && !/^[\d.,]+$/.test(e.data)) e.preventDefault();
-});
-weightEl.addEventListener('input', function(){
-  var v = weightEl.value.replace(/,/g, '.').replace(/[^\d.]/g, '');
-  var i = v.indexOf('.');
-  if (i !== -1) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/\./g, '');
-  if (v !== weightEl.value) weightEl.value = v;
-});
-function weightValue(){ /* '' или нормализованное число: «012.50» → «12.5» */
-  var v = weightEl.value.trim();
+/* ---- числовые поля с единицей: вес (0.5–200, lb|kg) и возраст
+   (0.1–30 yrs | 1–24 mo, в обеих вкладках). Только цифры и одна точка,
+   запятая → точка; пустое значение допустимо. ---- */
+function numericField(el){
+  el.addEventListener('beforeinput', function(e){
+    if (e.inputType === 'insertText' && e.data && !/^[\d.,]+$/.test(e.data)) e.preventDefault();
+  });
+  el.addEventListener('input', function(){
+    var v = el.value.replace(/,/g, '.').replace(/[^\d.]/g, '');
+    var i = v.indexOf('.');
+    if (i !== -1) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/\./g, '');
+    if (v !== el.value) el.value = v;
+  });
+}
+function numValue(el){ /* '' или нормализованное число: «012.50» → «12.5» */
+  var v = el.value.trim();
   if (!v) return '';
   var n = parseFloat(v);
   return isFinite(n) ? String(n) : v;
 }
-function weightValid(){
-  var v = weightEl.value.trim();
-  if (!v) return true; /* пустой вес допустим */
+function numInRange(el, min, max){
+  var v = el.value.trim();
+  if (!v) return true;
   var n = parseFloat(v);
-  return isFinite(n) && n >= 0.5 && n <= 200;
+  return isFinite(n) && n >= min && n <= max;
 }
-function weightUnit(){
-  var r = document.querySelector('input[name=weight_unit]:checked');
-  return r ? r.value : 'lb';
+function unitOf(name, dflt){
+  var r = document.querySelector('input[name=' + name + ']:checked');
+  return r ? r.value : dflt;
+}
+const weightEl = document.getElementById('weight');
+const ageEl = document.getElementById('age'), ageEl2 = document.getElementById('age2');
+[weightEl, ageEl, ageEl2].forEach(numericField);
+function weightValue(){ return numValue(weightEl); }
+function weightValid(){ return numInRange(weightEl, 0.5, 200); }
+function weightUnit(){ return unitOf('weight_unit', 'lb'); }
+/* возраст берём из активной вкладки: поля неактивной — disabled */
+function ageActive(){ return window.__elseMode ? ageEl2 : ageEl; }
+function ageUnit(){ return unitOf(window.__elseMode ? 'age_unit2' : 'age_unit', 'yrs'); }
+function ageValid(){ return ageUnit() === 'mo' ? numInRange(ageActive(), 1, 24) : numInRange(ageActive(), 0.1, 30); }
+/* строка Pet для квитанции и Monday: «Luna — Dog, Beagle, 12 lb, 3 yrs»,
+   пустые части пропускаются; та же логика в coworkers/leads-appscript-monday-phone.gs */
+function petLine(name, parts){
+  var bits = parts.filter(function(v){ return !!v; }).join(', ');
+  return name && bits ? name + ' \u2014 ' + bits : (name || bits);
 }
 
 /* ---- form_start (once) ---- */
@@ -1941,6 +1996,7 @@ form.addEventListener('submit', async (e) => {
   need.push({el: document.getElementById('last_name')});
   need.push({el: phoneNum, ok: phoneValid});
   if (!window.__elseMode) need.push({el: weightEl, ok: weightValid});
+  need.push({el: ageActive(), ok: ageValid});
   need.push({el: document.getElementById('email'), ok: () => document.getElementById('email').value.includes('@')});
   /* «How did you hear about us» — снова обязательное с 18.10. У полей этой формы
      две точки контроля: атрибут required в разметке и парная проверка здесь —
@@ -1978,6 +2034,12 @@ form.addEventListener('submit', async (e) => {
      Monday склеивает Pet как «Dog, Beagle, 12 lb», Formspree получает ту же строку. */
   delete data.weight_unit;
   if ('weight' in data) data.weight = weightValue() ? weightValue() + ' ' + weightUnit() : '';
+  /* возраст и имя питомца — всегда ключами age и pet_name, из активной вкладки:
+     «3 yrs» / «10 mo», пустое остаётся пустым */
+  delete data.age_unit; delete data.age_unit2; delete data.age2;
+  data.age = numValue(ageActive()) ? numValue(ageActive()) + ' ' + ageUnit() : '';
+  data.pet_name = String((window.__elseMode ? data.pet_name2 : data.pet_name) || '').trim();
+  delete data.pet_name2;
   /* телефон — E.164 плюс страна отдельным полем (Monday: phone + countryShortName) */
   const phoneInfo = phoneParts();
   data.phone = phoneInfo.e164;
@@ -2055,9 +2117,8 @@ form.addEventListener('submit', async (e) => {
        питомца из той вкладки, которую пользователь реально заполнял */
     const petType = window.__elseMode ? data.pet2 : data.pet;
     const petBreed = window.__elseMode ? data.breed2 : data.breed;
-    document.getElementById('r-pet').textContent = (petType || '\u2014')
-      + (petBreed ? ' \u00b7 ' + petBreed : '')
-      + (data.weight ? ' \u00b7 ' + data.weight : '');
+    document.getElementById('r-pet').textContent =
+      petLine(data.pet_name, [petType, petBreed, data.weight, data.age]) || '\u2014';
     document.getElementById('r-channel').textContent = data.channel + ' \u00b7 ' + phoneInfo.display;
     document.getElementById('cleared-msg').textContent =
       'Your concierge will reach you on ' + data.channel + ' within 15 minutes, 8am\u201310pm ET.';
