@@ -1164,7 +1164,9 @@ body{background:#FFFFFF}
                поэтому связь через aria-labelledby -->
           <span class="field-label" id="date-label">Departure date<span class="req" aria-hidden="true">*</span></span>
           <button type="button" class="date-btn" id="date-btn" aria-labelledby="date-label date-btn" aria-haspopup="dialog" aria-expanded="false">Select a date</button>
-          <input type="hidden" id="date" name="date">
+          <!-- ключ departure_date: в письме Formspree и в Apps Script читается как дата
+               вылета, а не просто «date»; заполняется из календаря ниже -->
+          <input type="hidden" id="departure_date" name="departure_date">
           <div class="cal" id="cal" role="dialog" aria-label="Choose departure date"></div>
           <div class="check"><input type="checkbox" id="noticket" name="noticket"><label for="noticket" style="margin:0;text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:13px">No ticket yet — planning ahead</label></div>
           <span class="err-msg">Pick a date or check &#8220;no ticket yet&#8221;.</span>
@@ -1754,7 +1756,7 @@ function routeChain(){
 /* ---- custom date picker ---- */
 const noticket = document.getElementById('noticket');
 const dateBtn = document.getElementById('date-btn');
-const dateISO = document.getElementById('date');
+const dateISO = document.getElementById('departure_date');
 const cal = document.getElementById('cal');
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DOW = ['Mo','Tu','We','Th','Fr','Sa','Su'];
@@ -2054,6 +2056,12 @@ form.addEventListener('submit', async (e) => {
   const legs = getLegs();
   data.legs = legs;
   data.route = legs.map(l => l.from + ' \u2192 ' + l.to).join('; ');
+  /* дата вылета — сразу после route: Formspree печатает поля в порядке ключей,
+     и в письме «Miami → Madrid» + «2026-12-15» читаются парой. Из FormData ключ
+     приходит первым (скрытое поле стоит выше остальных), поэтому переставляем. */
+  const departureDate = data.departure_date || '';
+  delete data.departure_date;
+  data.departure_date = departureDate;
   data.submittedAt = new Date().toISOString();
   /* Meta: один event_id у пикселя и у CAPI — Meta склеивает их в одну заявку.
      Поля для Meta добавляем только при согласии 'all'. */
@@ -2095,8 +2103,8 @@ form.addEventListener('submit', async (e) => {
     }
 
     let days = null;
-    if (data.date){
-      days = Math.round((new Date(data.date) - new Date()) / 86400000);
+    if (data.departure_date){
+      days = Math.round((new Date(data.departure_date) - new Date()) / 86400000);
     }
     const chain = routeChain();
     track('generate_lead', {
@@ -2112,7 +2120,7 @@ form.addEventListener('submit', async (e) => {
     document.getElementById('r-name').textContent = data.name;
     document.getElementById('r-route').textContent = window.__elseMode
       ? (data.services || 'Concierge request')
-      : chain.join(' \u2192 ') + (data.date ? ' \u00b7 ' + dateBtn.textContent : ' \u00b7 no ticket yet');
+      : chain.join(' \u2192 ') + (data.departure_date ? ' \u00b7 ' + dateBtn.textContent : ' \u00b7 no ticket yet');
     /* поля неактивной вкладки теперь disabled и не попадают в FormData — берём
        питомца из той вкладки, которую пользователь реально заполнял */
     const petType = window.__elseMode ? data.pet2 : data.pet;
