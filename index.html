@@ -1822,13 +1822,16 @@ function renderCal(){
    под <body>, страница прокручивается вместе с ним). Ширина — 348px или viewport
    минус 16px; левый край зажат, чтобы календарь не выходил за экран. */
 function placeCal(){
+  // body{zoom} (>=1780px): getBoundingClientRect/scrollX/Y отдают пиксели viewport,
+  // а left/top потомка body считаются в увеличенных пикселях. k — viewport-px на 1 layout-px.
   const r = dateBtn.getBoundingClientRect();
-  const vw = document.documentElement.clientWidth;
+  const k = dateBtn.offsetWidth ? r.width / dateBtn.offsetWidth : 1;
+  const vw = document.documentElement.clientWidth / k;
   const w = Math.min(348, vw - 16);
-  const left = Math.max(8, Math.min(r.left, vw - w - 8));
+  const left = Math.max(8, Math.min(r.left / k, vw - w - 8));
   cal.style.width = w + 'px';
-  cal.style.left = Math.round(left + window.scrollX) + 'px';
-  cal.style.top = Math.round(r.bottom + window.scrollY + 6) + 'px';
+  cal.style.left = Math.round(left + window.scrollX / k) + 'px';
+  cal.style.top = Math.round((r.bottom + window.scrollY) / k + 6) + 'px';
 }
 function calButtons(){ return Array.prototype.filter.call(cal.querySelectorAll('button'), b => !b.disabled); }
 function openCal(open){
