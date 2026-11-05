@@ -37,11 +37,36 @@
   ]
 }
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Регион и шрифты. EU (tz Europe/* и атлантические острова ЕС) — opt-in: Google Fonts
+     и аналитика только после согласия, до него системные шрифты; US — opt-out: шрифты сразу.
+     <link id="gfonts"> без href ничего не грузит, href ставит скрипт. Результат: data-region на <html>,
+     window.__pwRegion, localStorage pw-region (отладка). ?region=eu|us — переопределение для тестов.
+     Та же логика региона — в скрипте согласия (инлайн главной и assets/site.js). -->
+<link id="gfonts" rel="stylesheet" data-href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>
+(function(){
+  var q = /[?&]region=(eu|us)(&|$)/.exec(location.search), tz = '';
+  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(e){}
+  var EU = ['Atlantic/Reykjavik','Atlantic/Canary','Atlantic/Madeira','Atlantic/Azores','Atlantic/Faroe'];
+  var region = q ? q[1] : ((tz.indexOf('Europe/') === 0 || EU.indexOf(tz) >= 0) ? 'eu' : 'us');
+  document.documentElement.setAttribute('data-region', region);
+  window.__pwRegion = region;
+  try { localStorage.setItem('pw-region', region); } catch(e){}
+  var consent = null; try { consent = localStorage.getItem('pw-consent'); } catch(e){}
+  window.__pwLoadFonts = function(){
+    if (window.__fontsLoaded) return; window.__fontsLoaded = true;
+    var l = document.getElementById('gfonts'); if (!l || !l.dataset.href) return;
+    [['https://fonts.googleapis.com', ''], ['https://fonts.gstatic.com', 'anonymous']].forEach(function(p){
+      var c = document.createElement('link'); c.rel = 'preconnect'; c.href = p[0]; if (p[1]) c.crossOrigin = p[1];
+      l.parentNode.insertBefore(c, l);
+    });
+    l.href = l.dataset.href;
+  };
+  if (region === 'us' || consent === 'all') window.__pwLoadFonts();
+})();
+</script>
 <style>
-:root{--navy:#1E3227;--navy-deep:#152420;--cream:#F6F1E4;--paper:#FBF8F0;--ink:#1F2320;--muted:#52514E;--line:#E4DECB;--camel:#8C5A33;--choc:#6E3B14;--mono:'IBM Plex Mono',monospace}
+:root{--navy:#1E3227;--navy-deep:#152420;--cream:#F6F1E4;--paper:#FBF8F0;--ink:#1F2320;--muted:#52514E;--line:#E4DECB;--camel:#8C5A33;--choc:#6E3B14;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);line-height:1.65;font-size:16px}
 .wrap{max-width:760px;margin:0 auto;padding:0 24px}
@@ -98,7 +123,7 @@ footer a:hover{color:var(--cream)}
   <div class="wrap">
     <div class="kicker">The fine print</div>
     <h1>Privacy Policy</h1>
-    <p class="updated">EFFECTIVE &middot; NOVEMBER 3, 2026</p>
+    <p class="updated">EFFECTIVE &middot; NOVEMBER 6, 2026</p>
 
     <p>This page describes what happens to information you give us through <strong>www.pawsportconcierge.com</strong>, what the site does on its own while you are reading it, and what we collect and share while we work on your Order. The website part is written from the site&rsquo;s actual behaviour &mdash; every provider named below is one your browser or your request really reaches.</p>
 
@@ -142,26 +167,43 @@ footer a:hover{color:var(--cream)}
     <h2 id="automatic"><span class="num">06</span>What happens automatically when you open a page</h2>
     <ul>
       <li><strong>Hosting.</strong> The site is served by GitHub Pages. Like any web server, it processes your IP address and basic request data to deliver the page and to keep the service secure.</li>
-      <li><strong>Fonts.</strong> Our pages load their typefaces from Google Fonts, so your browser contacts Google&rsquo;s servers (<span class="num" style="margin:0">fonts.googleapis.com</span> and <span class="num" style="margin:0">fonts.gstatic.com</span>) and Google receives your IP address. This happens on every page load, <strong>before and regardless of the cookie choice below</strong>. We would rather serve the fonts ourselves and intend to; until we do, it is written here rather than left unsaid.</li>
-      <li>Nothing else loads before you answer the cookie banner &mdash; no advertising tags, no social widgets, no chat tools.</li>
+      <li><strong>Fonts.</strong> Our pages use typefaces from Google Fonts. When they load, your browser contacts Google&rsquo;s servers (<span class="num" style="margin:0">fonts.googleapis.com</span> and <span class="num" style="margin:0">fonts.gstatic.com</span>) and Google receives your IP address. Whether they load depends on where you are, as described in the next section: in the United States and most of the world they load with the page; in the EU, EEA, UK, Switzerland and Iceland they load only after you choose &ldquo;Accept&rdquo;, and until then the page is shown in your system&rsquo;s own fonts. We would rather serve the fonts ourselves and intend to.</li>
+      <li>No social widgets or chat tools load on any page, in any region.</li>
     </ul>
 
     <h2 id="cookies"><span class="num">07</span>Cookies and analytics</h2>
-    <p><strong>The site itself sets no cookies.</strong> Your answer to the banner is kept in your browser&rsquo;s local storage under the name <span class="num" style="margin:0">pw-consent</span>; it stays on your device and is never sent to us.</p>
+    <p><strong>The site itself sets no cookies.</strong> Three third-party tools do, once they run: <strong>Google Analytics 4</strong> and <strong>Microsoft Clarity</strong> (analytics) and the <strong>Meta Pixel</strong> (advertising measurement for Facebook and Instagram). They record which pages you open, what you click, your approximate location from your IP address, and your device and browser. Clarity additionally records a playback of pointer movement, scrolling and clicks on the page. The pixel tells Meta that you opened a page and, if you send a request, that a request was sent; we use this to see which ads bring people to us and to show our ads to people likely to need the service.</p>
+    <p>Whether these tools run before you have said anything depends on where you are. The page reads your browser&rsquo;s time zone and treats a European time zone (Europe/&hellip;, plus Iceland, the Canary Islands, Madeira, the Azores and the Faroe Islands) as the EU mode; every other time zone gets the US mode. The mode is written to your browser&rsquo;s local storage under the name <span class="num" style="margin:0">pw-region</span> so that you, or we, can check which one applied.</p>
     <ul>
-      <li><strong>Before you answer</strong> the banner, no analytics or advertising tags load at all.</li>
-      <li><strong>&ldquo;Essential only&rdquo;</strong> keeps it that way. Nothing further is loaded.</li>
-      <li><strong>&ldquo;Accept&rdquo;</strong> loads two analytics tools, <strong>Google Analytics 4</strong> and <strong>Microsoft Clarity</strong>, and Meta&rsquo;s ad measurement, described in the next point. These do set their own cookies. They record which pages you open, what you click, your approximate location from your IP address, and your device and browser. Clarity additionally records a playback of pointer movement, scrolling and clicks on the page.</li>
-      <li><strong>Meta Pixel and Conversions API</strong> (Facebook and Instagram). After &ldquo;Accept&rdquo;, the pixel tells Meta that you opened a page and, if you send a request, that a request was sent. We use this to see which ads bring people to us and to show our ads to people likely to need the service. When you send a request after &ldquo;Accept&rdquo;, our server also reports that request to Meta directly, with your email address and phone number in hashed form (a one-way code Meta uses to match an account, not readable text), your browser type and the identifiers of the ad you clicked. Your route, your pet&rsquo;s details and your message are not sent to Meta.</li>
+      <li><strong>US mode (opt-out).</strong> Analytics and advertising cookies are on when the page opens, and a banner tells you so with two choices: <strong>&ldquo;OK&rdquo;</strong> keeps them on; <strong>&ldquo;Opt out&rdquo;</strong> turns them off on the spot, without a reload &mdash; the tools are told that consent is withdrawn, their scripts are removed from the page, and the cookies they set on our domain (<span class="num" style="margin:0">_ga</span>, <span class="num" style="margin:0">_gid</span>, <span class="num" style="margin:0">_gcl</span>, <span class="num" style="margin:0">_fbp</span>, <span class="num" style="margin:0">_fbc</span>, <span class="num" style="margin:0">_clck</span>, <span class="num" style="margin:0">_clsk</span>) are deleted. Your choice is kept, so the tools stay off on later visits. The link <strong>&ldquo;Do Not Sell or Share My Personal Information&rdquo;</strong> at the bottom of each page opens the same switch at any time.</li>
+      <li><strong>Global Privacy Control.</strong> If your browser sends the Global Privacy Control signal, the US mode treats it as an opt-out: nothing loads and the banner is not shown. You can still turn the tools on through the link in the footer; an explicit choice there overrides the signal.</li>
+      <li><strong>EU mode (opt-in).</strong> Nothing loads until you answer &mdash; no analytics, no advertising tags, and no Google Fonts either; the page is shown in your system&rsquo;s own fonts. The banner offers <strong>&ldquo;Reject&rdquo;</strong> and <strong>&ldquo;Accept&rdquo;</strong> with equal weight. &ldquo;Reject&rdquo; keeps everything off and is remembered. &ldquo;Accept&rdquo; loads the three tools and the fonts. <strong>&ldquo;Cookie settings&rdquo;</strong> at the bottom of each page reopens the banner so you can withdraw consent at any time; withdrawing works the same way as &ldquo;Opt out&rdquo; above.</li>
+      <li><strong>What stays in your browser.</strong> Two values in local storage, never sent to us: your answer under <span class="num" style="margin:0">pw-consent</span> (&ldquo;all&rdquo; or &ldquo;essential&rdquo;) and the mode under <span class="num" style="margin:0">pw-region</span>. If you start filling in the request form, a draft of what you typed is kept under <span class="num" style="margin:0">pw-draft</span> for 24 hours so a closed tab does not lose it; it is deleted when the request is sent or when you choose &ldquo;Submit another request&rdquo;. Clearing site data for this domain in your browser erases all of this together with any analytics and advertising cookies.</li>
+      <li><strong>Consent signals to the tools.</strong> Google receives your status through its Consent Mode (analytics, ad storage, ad user data and ad personalization are all &ldquo;granted&rdquo; or all &ldquo;denied&rdquo; together); Meta receives it through the pixel&rsquo;s consent setting. The pixel reports a sent request to Meta only while your status is &ldquo;granted&rdquo;.</li>
+      <li><strong>Meta Conversions API.</strong> When you send a request while your status is &ldquo;granted&rdquo;, our server also reports that request to Meta directly, with your email address and phone number in hashed form (a one-way code Meta uses to match an account, not readable text), your browser type and the identifiers of the ad you clicked. Your route, your pet&rsquo;s details and your message are not sent to Meta. With status &ldquo;denied&rdquo; none of this is sent.</li>
     </ul>
-    <p>You can change your answer at any time through <strong>Cookie settings</strong> at the bottom of the home, About and blog pages. Clearing site data for this domain in your browser erases the stored answer and the analytics and advertising cookies together. Our website does not currently respond to &ldquo;Do Not Track&rdquo; browser signals.</p>
-    <p>The FAQ, Terms and this Privacy page carry no analytics at all &mdash; they load no scripts.</p>
+    <p>Our website does not respond to the older &ldquo;Do Not Track&rdquo; browser setting; it does respond to Global Privacy Control as described above. The FAQ, Terms and this Privacy page carry no analytics at all; in the EU mode they also leave the fonts off unless you have accepted on another page of this site.</p>
     <!-- ЮРИСТ: стандарт согласия.
-         Баннер спрашивает до загрузки аналитики и позволяет отказаться —
-         это то, что реализовано. Достаточно ли этого для GDPR / ePrivacy /
-         CCPA в тех странах, откуда приходят клиенты, — вопрос к юристу.
-         Отдельно: Google Fonts грузятся ДО согласия, в ЕС по этому поводу
-         были решения не в пользу сайтов. Решается задачей про шрифты. -->
+         Реализовано два режима по часовому поясу: EU — opt-in (ничего до клика,
+         включая Google Fonts; Reject/Accept одного веса), US — opt-out (всё сразу,
+         баннер OK / Opt out, ссылка «Do Not Sell or Share», сигнал GPC = opt-out).
+         Вопросы: (а) часовой пояс как признак региона — допустимая эвристика или
+         нужна геолокация по IP; (б) достаточно ли текста баннера в ЕС без перечня
+         целей и поставщиков прямо в баннере; (в) Великобритания и Швейцария
+         попадают в EU-режим по поясу — верно ли описывать их вместе. -->
+
+    <h3 id="eu">If you are in the EU/EEA, UK or Switzerland</h3>
+    <p><strong>Legal basis.</strong> Analytics and advertising measurement run only on your consent (GDPR Article 6(1)(a), and the equivalent provisions of the UK GDPR and the Swiss FADP), given through the &ldquo;Accept&rdquo; button and withdrawable at any time through &ldquo;Cookie settings&rdquo;. Withdrawing does not affect what was done before. Everything needed to handle your request and your Order rests on the contract with you (Article 6(1)(b)); keeping records we are required to keep rests on legal obligation (Article 6(1)(c)); security of the site and defence of claims rest on our legitimate interests (Article 6(1)(f)).</p>
+    <p><strong>Your rights.</strong> In addition to the choices in section 13, you have the right to access your personal data, to rectification, to erasure, to restriction of processing, to data portability, to object to processing based on legitimate interests, and not to be subject to a decision based solely on automated processing. We make no such automated decisions. You may lodge a complaint with the supervisory authority of your country of residence, place of work or where the matter arose; in the UK that is the Information Commissioner&rsquo;s Office, in Switzerland the Federal Data Protection and Information Commissioner.</p>
+    <p><strong>Transfers to the United States.</strong> We are a United States company, and the providers named in section 09 (Formspree, Google, Microsoft, Meta, GitHub) process data in the United States. Information you send us through the form is transferred because it is necessary to perform the contract you have asked for (Article 49(1)(b)). Analytics and advertising data are transferred on the basis described below.</p>
+    <!-- ЮРИСТ: механизм передачи в США для аналитики и рекламы. Варианты:
+         (а) EU-US Data Privacy Framework — Google, Microsoft и Meta сертифицированы;
+         ссылаться на DPF и указать, что сертификацию можно проверить на
+         dataprivacyframework.gov; (б) Standard Contractual Clauses в условиях
+         этих поставщиков; (в) для UK — UK Extension to the DPF / IDTA, для
+         Швейцарии — Swiss-US DPF. Нужна формулировка от юриста; до неё абзац
+         выше заканчивается ссылкой на «основание ниже», которого в тексте нет
+         намеренно — чтобы не написать неверное. -->
 
     <h2 id="why"><span class="num">08</span>Why we use it</h2>
     <p>We use personal information to provide the services you order &mdash; planning, scheduling, preparing documents, registering your Pet with airlines, making bookings and purchases on your instruction, and caring for your Pet; to communicate with you about your Order; to prepare invoices, take payment and keep accounts; to comply with law, including animal-health, customs, airline and tax rules; to keep business records and to establish, exercise or defend legal claims, including payment disputes; to use photos of your Pet in our marketing, but only if you have opted in; and to maintain and improve our website and services.</p>
@@ -224,11 +266,11 @@ footer a:hover{color:var(--cream)}
       <li>Ask us to correct anything that is wrong.</li>
       <li>Ask us to delete it, or to restrict how we use it.</li>
       <li>Object to processing based on our legitimate interests.</li>
-      <li>Withdraw any consent you have given &mdash; for marketing use of your Pet&rsquo;s photos, by email at any time; for analytics, through <a href="#cookies">Cookie settings</a>.</li>
+      <li>Withdraw any consent you have given &mdash; for marketing use of your Pet&rsquo;s photos, by email at any time; for analytics and advertising, through <a href="#cookies">Cookie settings</a> (EU mode) or <a href="#cookies">Do Not Sell or Share My Personal Information</a> (US mode) in the footer.</li>
     </ul>
     <p>Write to <a href="mailto:hello@pawsportconcierge.com">hello@pawsportconcierge.com</a> with &ldquo;Privacy&rdquo; in the subject line. We may ask you to verify your identity. We respond within the time required by applicable law, normally within thirty (30) days, and we do not treat you differently for exercising your rights.</p>
     <p><strong>If you are in the EEA or the United Kingdom,</strong> you also have the right to lodge a complaint with your local data-protection authority. We act as a controller of your personal information for the purposes described on this page.</p>
-    <p><strong>If you are a California resident,</strong> you have the rights to know, delete, correct, and opt out of the sale or sharing of personal information under the California Consumer Privacy Act, to the extent it applies to us. We do not sell personal information; the only sharing for advertising is the Meta measurement described above, which happens only after you choose &ldquo;Accept&rdquo; and which you can switch off through Cookie settings.</p>
+    <p><strong>If you are a California resident,</strong> you have the rights to know, delete, correct, and opt out of the sale or sharing of personal information under the California Consumer Privacy Act, to the extent it applies to us. We do not sell personal information. Sharing for cross-context behavioral advertising is limited to the Meta measurement described in section 07. In the US mode it is on by default; you can switch it off through <strong>&ldquo;Do Not Sell or Share My Personal Information&rdquo;</strong> at the bottom of each page, and a Global Privacy Control signal from your browser is honoured as the same request.</p>
 
     <h2 id="children"><span class="num">14</span>Children</h2>
     <p>Our services are for adults. We do not knowingly collect personal information from anyone under 18. If you believe a minor has given us personal information, please contact us and we will delete it.</p>

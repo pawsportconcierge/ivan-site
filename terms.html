@@ -36,11 +36,36 @@
   ]
 }
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Регион и шрифты. EU (tz Europe/* и атлантические острова ЕС) — opt-in: Google Fonts
+     и аналитика только после согласия, до него системные шрифты; US — opt-out: шрифты сразу.
+     <link id="gfonts"> без href ничего не грузит, href ставит скрипт. Результат: data-region на <html>,
+     window.__pwRegion, localStorage pw-region (отладка). ?region=eu|us — переопределение для тестов.
+     Та же логика региона — в скрипте согласия (инлайн главной и assets/site.js). -->
+<link id="gfonts" rel="stylesheet" data-href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>
+(function(){
+  var q = /[?&]region=(eu|us)(&|$)/.exec(location.search), tz = '';
+  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(e){}
+  var EU = ['Atlantic/Reykjavik','Atlantic/Canary','Atlantic/Madeira','Atlantic/Azores','Atlantic/Faroe'];
+  var region = q ? q[1] : ((tz.indexOf('Europe/') === 0 || EU.indexOf(tz) >= 0) ? 'eu' : 'us');
+  document.documentElement.setAttribute('data-region', region);
+  window.__pwRegion = region;
+  try { localStorage.setItem('pw-region', region); } catch(e){}
+  var consent = null; try { consent = localStorage.getItem('pw-consent'); } catch(e){}
+  window.__pwLoadFonts = function(){
+    if (window.__fontsLoaded) return; window.__fontsLoaded = true;
+    var l = document.getElementById('gfonts'); if (!l || !l.dataset.href) return;
+    [['https://fonts.googleapis.com', ''], ['https://fonts.gstatic.com', 'anonymous']].forEach(function(p){
+      var c = document.createElement('link'); c.rel = 'preconnect'; c.href = p[0]; if (p[1]) c.crossOrigin = p[1];
+      l.parentNode.insertBefore(c, l);
+    });
+    l.href = l.dataset.href;
+  };
+  if (region === 'us' || consent === 'all') window.__pwLoadFonts();
+})();
+</script>
 <style>
-:root{--navy:#1E3227;--navy-deep:#152420;--cream:#F6F1E4;--paper:#FBF8F0;--ink:#1F2320;--muted:#52514E;--line:#E4DECB;--camel:#8C5A33;--choc:#6E3B14;--mono:'IBM Plex Mono',monospace}
+:root{--navy:#1E3227;--navy-deep:#152420;--cream:#F6F1E4;--paper:#FBF8F0;--ink:#1F2320;--muted:#52514E;--line:#E4DECB;--camel:#8C5A33;--choc:#6E3B14;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);line-height:1.65;font-size:16px}
 .wrap{max-width:760px;margin:0 auto;padding:0 24px}

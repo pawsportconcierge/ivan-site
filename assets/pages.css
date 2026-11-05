@@ -12,7 +12,7 @@
   --line:#E4DECB; --line-strong:#8F8570; --navy-line:#33453B;
   --focus:#8C5A33; --focus-on-dark:#C9A87C;
   --serif:'Newsreader',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
-  --mono:'IBM Plex Mono',monospace;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
@@ -327,6 +327,10 @@ footer{background:var(--navy-deep);color:#B3BDB0;padding:clamp(38px,4vw,56px) 0 
 .linkbtn:hover{color:var(--cream)}
 .ck-accept{background:var(--cream);color:#1E3227;border-color:var(--cream);font-weight:600}
 .ck-accept:hover{background:#fff}
+/* EU (opt-in): Reject и Accept одного веса — без тёмных паттернов; класс eq ставит site.js */
+.cookies.eq .ck-btn{font-weight:500}
+.cookies.eq .ck-accept{background:none;color:var(--cream);border-color:rgba(246,241,228,.45)}
+.cookies.eq .ck-accept:hover{background:none;border-color:var(--cream)}
 @media(max-width:640px){
   .cookies{flex-direction:column;align-items:stretch;gap:12px;
     bottom:calc(12px + env(safe-area-inset-bottom))}

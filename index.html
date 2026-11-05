@@ -64,9 +64,34 @@
      поддерживается: такие браузеры возьмут png/jpg из image-set. -->
 <link rel="preload" as="image" type="image/webp"
       href="assets/media/hero-terminal-2600.webp" fetchpriority="high">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<!-- Регион и шрифты. EU (tz Europe/* и атлантические острова ЕС) — opt-in: Google Fonts
+     и аналитика только после согласия, до него системные шрифты; US — opt-out: шрифты сразу.
+     <link id="gfonts"> без href ничего не грузит, href ставит скрипт. Результат: data-region на <html>,
+     window.__pwRegion, localStorage pw-region (отладка). ?region=eu|us — переопределение для тестов.
+     Та же логика региона — в скрипте согласия (инлайн главной и assets/site.js). -->
+<link id="gfonts" rel="stylesheet" data-href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@600&display=swap">
+<script>
+(function(){
+  var q = /[?&]region=(eu|us)(&|$)/.exec(location.search), tz = '';
+  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(e){}
+  var EU = ['Atlantic/Reykjavik','Atlantic/Canary','Atlantic/Madeira','Atlantic/Azores','Atlantic/Faroe'];
+  var region = q ? q[1] : ((tz.indexOf('Europe/') === 0 || EU.indexOf(tz) >= 0) ? 'eu' : 'us');
+  document.documentElement.setAttribute('data-region', region);
+  window.__pwRegion = region;
+  try { localStorage.setItem('pw-region', region); } catch(e){}
+  var consent = null; try { consent = localStorage.getItem('pw-consent'); } catch(e){}
+  window.__pwLoadFonts = function(){
+    if (window.__fontsLoaded) return; window.__fontsLoaded = true;
+    var l = document.getElementById('gfonts'); if (!l || !l.dataset.href) return;
+    [['https://fonts.googleapis.com', ''], ['https://fonts.gstatic.com', 'anonymous']].forEach(function(p){
+      var c = document.createElement('link'); c.rel = 'preconnect'; c.href = p[0]; if (p[1]) c.crossOrigin = p[1];
+      l.parentNode.insertBefore(c, l);
+    });
+    l.href = l.dataset.href;
+  };
+  if (region === 'us' || consent === 'all') window.__pwLoadFonts();
+})();
+</script>
 
 <style>
 :root{
@@ -82,7 +107,7 @@
   --focus:#8C5A33; --focus-on-dark:#C9A87C;
   /* высота мобильной панели .sticky-cta — куки-баннер поднимается над ней */
   --sticky-cta-h:70px;
-  --serif:'Newsreader',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
+  --serif:'Newsreader',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -816,6 +841,10 @@ footer{background:var(--navy-deep);color:#B3BDB0;padding:44px 0}
 .ck-ghost:hover{border-color:var(--cream, #F6F1E4)}
 .ck-accept{background:var(--cream, #F6F1E4);color:#1E3227;border-color:var(--cream, #F6F1E4);font-weight:600}
 .ck-accept:hover{background:#fff}
+/* EU (opt-in): Reject и Accept одного веса — без тёмных паттернов; класс eq ставит скрипт согласия */
+.cookies.eq .ck-btn{font-weight:500}
+.cookies.eq .ck-accept{background:none;color:var(--cream, #F6F1E4);border-color:rgba(246,241,228,.45)}
+.cookies.eq .ck-accept:hover{background:none;border-color:var(--cream, #F6F1E4)}
 @media(max-width:640px){.cookies{flex-direction:column;align-items:stretch;gap:12px;bottom:calc(12px + env(safe-area-inset-bottom))}.cookies-actions{justify-content:flex-end}}
 /* Мобильный sticky-CTA живёт внизу экрана (z-index 50), а куки-баннер (z-index 70)
    ложился прямо на него. Поднимаем баннер ровно на высоту панели — и только
@@ -1028,9 +1057,11 @@ body{background:#FFFFFF}
      от переноса не меняется; z-index 70 остаётся высшим после .skip. -->
 <p class="sr-only" id="ck-live" aria-live="polite"></p>
 <div class="cookies" id="cookies" role="dialog" aria-modal="false" aria-label="Cookie settings" tabindex="-1">
-  <p>This site sets no cookies of its own. With your consent we&rsquo;ll enable analytics (Google, Microsoft) and Meta&rsquo;s ad measurement. You can change this any time &mdash; see our <a href="privacy.html#cookies">Privacy&nbsp;Policy</a>.</p>
+  <!-- Текст и подписи кнопок переписывает скрипт согласия по региону: EU — «Reject / Accept»
+       одного веса (класс eq), US — «Opt out / OK». -->
+  <p>We&rsquo;d like to use analytics and advertising cookies to improve the site and measure our ads. See our <a href="privacy.html#cookies">Privacy&nbsp;Policy</a>.</p>
   <div class="cookies-actions">
-    <button type="button" class="ck-btn ck-ghost" id="ck-essential">Essential only</button>
+    <button type="button" class="ck-btn ck-ghost" id="ck-essential">Reject</button>
     <button type="button" class="ck-btn ck-accept" id="ck-accept">Accept</button>
   </div>
 </div>
@@ -1659,7 +1690,7 @@ function readCookie(n){ var m = document.cookie.match('(?:^|; )' + n + '=([^;]*)
 function fbcFromClick(){ try { var v = sessionStorage.getItem('pw-fbclid'); if (!v) return ''; var p = v.split('|'); return 'fb.1.' + p[1] + '.' + p[0]; } catch(e){ return ''; } }
 
 /* ---- analytics helper ---- */
-function track(event, params){ window.dataLayer = window.dataLayer || []; window.dataLayer.push(Object.assign({event}, params || {})); if (window.__ga4Loaded && window.gtag) { gtag('event', event, params || {}); } }
+function track(event, params){ window.dataLayer = window.dataLayer || []; window.dataLayer.push(Object.assign({event}, params || {})); if (window.__ga4Loaded && window.gtag && (!window.__consentGranted || window.__consentGranted())) { gtag('event', event, params || {}); } }
 document.querySelectorAll('[data-track]').forEach(el => {
   el.addEventListener('click', () => track('click_' + el.dataset.track));
 });
@@ -2166,7 +2197,7 @@ form.addEventListener('submit', async (e) => {
   /* Meta: один event_id у пикселя и у CAPI — Meta склеивает их в одну заявку.
      Поля для Meta добавляем только при согласии 'all'. */
   data.event_id = 'lead-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
-  data.consent = window.__consent || '';
+  data.consent = (window.__consentGranted && window.__consentGranted()) ? 'all' : 'essential';
   if (data.consent === 'all'){
     data.page_url = location.href.split('#')[0];
     data.user_agent = navigator.userAgent;
@@ -2215,7 +2246,7 @@ form.addEventListener('submit', async (e) => {
       no_ticket: !!data.noticket, days_to_departure: days,
       utm_source: data.utm_source || '(none)'
     });
-    if (data.consent === 'all' && window.fbq){
+    if (data.consent === 'all' && window.__consentGranted() && window.fbq){
       window.fbq('track', 'Lead', {content_category: data.need}, {eventID: data.event_id});
     }
 
@@ -2569,12 +2600,30 @@ if (window.matchMedia('(max-width: 920px)').matches){
 </script>
 
 <script>
+/* Согласие в двух режимах по региону (06.11.2026). Регион — head-скрипт (data-region на <html>,
+   window.__pwRegion, localStorage pw-region; ?region=eu|us — тест). EU — opt-in: до клика ничего
+   не грузится, включая Google Fonts; баннер «Reject / Accept» одного веса. US — opt-out: GA4, Clarity
+   и пиксель Meta сразу, если не было «Opt out» и нет сигнала GPC (navigator.globalPrivacyControl;
+   ?gpc=1 — тест); баннер «Opt out / OK», в подвале «Do Not Sell or Share My Personal Information».
+   GA4 Consent Mode v2 и fbq consent — по тому же статусу. Та же логика в assets/site.js — менять оба. */
 (function(){
-  var KEY = 'pw-consent';
-  var box = document.getElementById('cookies');
+  var KEY = 'pw-consent', GA4_ID = 'G-64W5X6RV2K', CLARITY_ID = 'xxqiuz1ged';
+  /* ID датасета «Pawsport Website» живёт в ДВУХ местах: здесь и в assets/site.js — менять оба. Пусто — не грузится. */
+  var META_PIXEL_ID = '1072394655611354';
+  var region = window.__pwRegion || 'us';   /* выставляет head-скрипт региона; ?region=eu|us — тест */
+  var gpc = navigator.globalPrivacyControl === true || /[?&]gpc=1(&|$)/.test(location.search); /* ?gpc=1 — тест */
   var saved = null;
   try { saved = localStorage.getItem(KEY); } catch(e){}
-  window.__consent = saved;
+  /* EU — только явное «Accept»; US — пока нет «Opt out» и нет сигнала GPC; явное «OK» перекрывает GPC */
+  function granted(){ return region === 'eu' ? saved === 'all' : (saved === 'all' || (!gpc && saved !== 'essential')); }
+  window.__consentGranted = granted;
+  window.__consent = granted() ? 'all' : 'essential';
+  window.dataLayer = window.dataLayer || [];
+  if (!window.gtag) window.gtag = function(){ window.dataLayer.push(arguments); };
+  function cm(on){ var v = on ? 'granted' : 'denied'; return {ad_storage: v, ad_user_data: v, ad_personalization: v, analytics_storage: v}; }
+  /* GA4 Consent Mode v2: EU — default denied и update после согласия; US — default по текущему статусу */
+  window.gtag('consent', 'default', cm(region === 'us' && granted()));
+  if (region === 'eu' && granted()) window.gtag('consent', 'update', cm(true));
   function loadClarity(){
     if (window.__clarityLoaded) return;
     window.__clarityLoaded = true;
@@ -2582,23 +2631,18 @@ if (window.matchMedia('(max-width: 920px)').matches){
       c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
       t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
       y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "xxqiuz1ged");
+    })(window, document, "clarity", "script", CLARITY_ID);
   }
   function loadGA4(){
     if (window.__ga4Loaded) return;
     window.__ga4Loaded = true;
     var s = document.createElement('script');
     s.async = true;
-    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-64W5X6RV2K';
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA4_ID;
     document.head.appendChild(s);
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function(){ dataLayer.push(arguments); };
-    gtag('js', new Date());
-    gtag('config', 'G-64W5X6RV2K');
+    window.gtag('js', new Date());
+    window.gtag('config', GA4_ID);
   }
-  /* Пиксель Meta — только после 'all'. ID датасета «Pawsport Website» живёт
-     в ДВУХ местах: здесь и в assets/site.js — менять оба. Пусто — не грузится. */
-  var META_PIXEL_ID = '1072394655611354';
   function loadMetaPixel(){
     if (!META_PIXEL_ID || window.__metaLoaded) return;
     window.__metaLoaded = true;
@@ -2607,12 +2651,49 @@ if (window.matchMedia('(max-width: 920px)').matches){
     n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
     t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
     document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    window.fbq('consent', 'grant');
     window.fbq('init', META_PIXEL_ID);
     window.fbq('track', 'PageView');
   }
-  /* Фокус, Escape и анонс — теми же правилами, что в assets/site.js, чтобы
-     баннер вёл себя одинаково на главной и на внутренних страницах. */
-  var live = document.getElementById('ck-live');
+  function loadAll(){ if (window.__pwLoadFonts) window.__pwLoadFonts(); loadClarity(); loadGA4(); loadMetaPixel(); }
+  /* «Opt out» / «Reject» после загрузки: статусы в denied, GA4 выключен флагом, теги сняты, их куки стёрты */
+  function clearCookies(){
+    var host = location.hostname, doms = ['', host, '.' + host, '.' + host.replace(/^www\./, '')];
+    document.cookie.split(';').forEach(function(c){
+      var n = c.split('=')[0].trim();
+      if (!/^(_ga|_gid|_gat|_gcl|_fbp|_fbc|_clck|_clsk)/.test(n)) return;
+      doms.forEach(function(d){ document.cookie = n + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/' + (d ? '; domain=' + d : ''); });
+    });
+  }
+  function optOut(){
+    window['ga-disable-' + GA4_ID] = true;
+    window.gtag('consent', 'update', cm(false));
+    if (window.fbq) window.fbq('consent', 'revoke');
+    if (window.clarity){ try { window.clarity('consent', false); window.clarity('stop'); } catch(e){} }
+    Array.prototype.forEach.call(document.querySelectorAll('script[src*="googletagmanager.com"],script[src*="clarity.ms"],script[src*="connect.facebook.net"]'), function(s){ s.parentNode.removeChild(s); });
+    clearCookies();
+  }
+  function grant(){
+    window['ga-disable-' + GA4_ID] = false;
+    window.gtag('consent', 'update', cm(true));
+    loadAll();
+    if (window.fbq) window.fbq('consent', 'grant');
+    if (window.clarity){ try { window.clarity('consent', true); } catch(e){} }
+  }
+  if (granted()) loadAll();
+  var TEXT = {
+    eu: {p: 'We&rsquo;d like to use analytics and advertising cookies to improve the site and measure our ads. See our <a href="privacy.html#cookies">Privacy&nbsp;Policy</a>.',
+         no: 'Reject', yes: 'Accept', footer: 'Cookie settings'},
+    us: {p: 'We use analytics and advertising cookies to improve the site and measure our ads. See our <a href="privacy.html#cookies">Privacy&nbsp;Policy</a>.',
+         no: 'Opt out', yes: 'OK', footer: 'Do Not Sell or Share My Personal Information'}
+  };
+  var T = TEXT[region];
+  var box = document.getElementById('cookies'), live = document.getElementById('ck-live'), opener = document.getElementById('ck-open');
+  box.querySelector('p').innerHTML = T.p;
+  document.getElementById('ck-essential').textContent = T.no;
+  document.getElementById('ck-accept').textContent = T.yes;
+  box.classList.toggle('eq', region === 'eu');
+  if (opener) opener.textContent = T.footer;
   var lastFocus = null;
   function open(opener){
     lastFocus = opener || null;
@@ -2630,17 +2711,16 @@ if (window.matchMedia('(max-width: 920px)').matches){
   }
   function set(v){
     try { localStorage.setItem(KEY, v); } catch(e){}
-    window.__consent = v;
+    saved = v;
+    window.__consent = granted() ? 'all' : 'essential';
     close();
-    if (v === 'all'){ loadClarity(); loadGA4(); loadMetaPixel(); }
+    if (v === 'all') grant(); else optOut();
   }
-  if (saved === 'all'){ loadClarity(); loadGA4(); loadMetaPixel(); }
-  if (!saved) open(null);
-  var opener = document.getElementById('ck-open');
+  /* баннер при загрузке: нет сохранённого выбора; в US при сигнале GPC не показываем — он уже «Opt out» */
+  if (!saved && !(region === 'us' && gpc)) open(null);
   if (opener) opener.addEventListener('click', function(){ open(opener); });
-  /* Escape закрывает, не записывая выбора: вернуть — «Cookie settings» в подвале.
-     Слушатель на самом баннере, а не на документе, чтобы не отнимать Escape
-     у календаря в форме. */
+  /* Escape закрывает, не записывая выбора. Слушатель на самом баннере, не на документе,
+     чтобы не отнимать Escape у календаря в форме. */
   box.addEventListener('keydown', function(e){
     if (e.key === 'Escape'){ e.stopPropagation(); close(); }
   });
