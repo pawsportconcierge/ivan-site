@@ -217,18 +217,19 @@ textarea{resize:none;height:88px;overflow-y:auto}
 .date-btn:hover{border-color:var(--camel)}
 .date-btn:focus-visible{border-color:var(--camel);outline:2px solid var(--focus);outline-offset:2px}
 .date-btn:disabled{opacity:.5;cursor:default}
-/* 348px = 7 ячеек по 44px + 6 зазоров по 2px + поля 14px: зона тапа дня не меньше 44px.
-   На узких экранах календарь выходит на поля карточки (24px), чтобы удержать 44px. */
-.cal{display:none;position:absolute;z-index:20;top:calc(100% + 6px);left:0;width:348px;max-width:100%;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:14px}
-@media (max-width:479px){ .cal{left:-24px;right:-24px;width:auto;max-width:none;padding:12px 6px} .cal-grid{gap:1px} }
+/* Календарь — portal: скрипт переносит #cal прямым потомком <body> и ставит его по
+   координатам кнопки #date-btn (placeCal). Внутри карточки он был заперт в stacking
+   context (.file с filter и маской, панели с transform): на десктопе его накрывали поля
+   следующего блока, на телефоне — куки-баннер (z 70) и sticky-CTA (z 50). z-index 80 —
+   выше всех фиксированных слоёв страницы. 348px = 7 ячеек по 44px + зазоры + поля;
+   на узком экране ширина ужимается до viewport минус 16px (см. placeCal). */
+.cal{display:none;position:absolute;z-index:80;width:348px;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:14px}
 .cal-months{display:flex;gap:4px;overflow-x:auto;margin:0 0 10px;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .cal-months::-webkit-scrollbar{display:none}
 .cal-month{flex:0 0 auto;min-height:44px;padding:0 12px;border:1px solid var(--line-strong);border-radius:999px;background:#fff;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--navy);cursor:pointer;touch-action:manipulation}
 .cal-month:hover{border-color:var(--camel)}
 .cal-month.on{background:var(--navy);color:var(--cream);border-color:var(--navy)}
-/* пока календарь открыт, мобильная CTA и кнопка WhatsApp не должны ложиться поверх дней */
-body.cal-open .sticky-cta.visible{display:none}
-body.cal-open .wa-float{opacity:0;pointer-events:none}
+
 .cal.open{display:block}
 .cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .cal-title{font-family:var(--serif);font-size:16px;color:var(--navy)}
@@ -1774,6 +1775,9 @@ const noticket = document.getElementById('noticket');
 const dateBtn = document.getElementById('date-btn');
 const dateISO = document.getElementById('departure_date');
 const cal = document.getElementById('cal');
+/* portal: календарь живёт под <body>, а не внутри поля — см. комментарий у .cal в CSS */
+document.body.appendChild(cal);
+dateBtn.setAttribute('aria-controls', 'cal');
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DOW = ['Mo','Tu','We','Th','Fr','Sa','Su'];
 const today = new Date(); today.setHours(0,0,0,0);
@@ -1814,33 +1818,40 @@ function renderCal(){
   const strip = cal.querySelector('.cal-months'), chip = cal.querySelector('.cal-month.on');
   if (strip && chip) strip.scrollLeft = chip.offsetLeft - (strip.clientWidth - chip.offsetWidth) / 2;
 }
-/* Фиксированные куки-баннер (z 70) и мобильная CTA (z 50) лежат выше календаря:
-   его z-index заперт в stacking context карточки (.file с filter и маской,
-   .file-body с transform), поднять нельзя. Поэтому на время открытия CTA
-   прячем (body.cal-open), а страницу докручиваем так, чтобы весь календарь
-   был выше баннера — иначе тап по дню уходит в баннер. */
-function scrollInstant(dy){
-  if (!dy) return;
-  const root = document.documentElement, prev = root.style.scrollBehavior;
-  root.style.scrollBehavior = 'auto';
-  window.scrollBy(0, dy);
-  root.style.scrollBehavior = prev;
+/* Координаты календаря — от кнопки даты, в координатах документа (position:absolute
+   под <body>, страница прокручивается вместе с ним). Ширина — 348px или viewport
+   минус 16px; левый край зажат, чтобы календарь не выходил за экран. */
+function placeCal(){
+  const r = dateBtn.getBoundingClientRect();
+  const vw = document.documentElement.clientWidth;
+  const w = Math.min(348, vw - 16);
+  const left = Math.max(8, Math.min(r.left, vw - w - 8));
+  cal.style.width = w + 'px';
+  cal.style.left = Math.round(left + window.scrollX) + 'px';
+  cal.style.top = Math.round(r.bottom + window.scrollY + 6) + 'px';
 }
-function ensureCalVisible(){
-  const r = cal.getBoundingClientRect();
-  let limit = window.innerHeight;
-  const ck = document.getElementById('cookies');
-  if (ck && ck.classList.contains('on')) limit = Math.min(limit, ck.getBoundingClientRect().top);
-  if (r.bottom > limit - 8) scrollInstant(Math.ceil(r.bottom - limit + 8));
-  const r2 = cal.getBoundingClientRect();
-  if (r2.top < 8) scrollInstant(Math.floor(r2.top - 8));
-}
+function calButtons(){ return Array.prototype.filter.call(cal.querySelectorAll('button'), b => !b.disabled); }
 function openCal(open){
   cal.classList.toggle('open', open);
   dateBtn.setAttribute('aria-expanded', open);
-  document.body.classList.toggle('cal-open', open);
-  if (open){ renderCal(); ensureCalVisible(); }
+  if (open){ renderCal(); placeCal(); }
 }
+function closeCalToButton(){ openCal(false); dateBtn.focus({preventScroll: true}); }
+['resize', 'scroll'].forEach(ev => window.addEventListener(ev, () => { if (cal.classList.contains('open')) placeCal(); }, {passive: true}));
+/* клавиатура: Tab с кнопки уводит в открытый календарь, внутри фокус ходит по кругу
+   (role=dialog), Escape и выбор дня возвращают фокус на кнопку */
+dateBtn.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab' && !e.shiftKey && cal.classList.contains('open')){
+    const b = calButtons(); if (b.length){ e.preventDefault(); b[0].focus(); }
+  }
+});
+cal.addEventListener('keydown', (e) => {
+  if (e.key !== 'Tab') return;
+  const b = calButtons(); if (!b.length) return;
+  const first = b[0], last = b[b.length - 1];
+  if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+});
 function setDate(isoDate){
   dateISO.value = isoDate || '';
   if (!isoDate){ dateBtn.textContent = 'Select a date'; dateBtn.classList.remove('set'); return; }
@@ -1851,14 +1862,15 @@ function setDate(isoDate){
 dateBtn.addEventListener('click', () => openCal(!cal.classList.contains('open')));
 cal.addEventListener('click', (e) => {
   const nav = e.target.closest('[data-nav]');
-  if (nav){ view = new Date(view.getFullYear(), view.getMonth() + Number(nav.dataset.nav), 1); renderCal(); return; }
+  /* после перерисовки сетки нажатая кнопка уничтожена — возвращаем фокус на её замену */
+  if (nav){ view = new Date(view.getFullYear(), view.getMonth() + Number(nav.dataset.nav), 1); renderCal(); placeCal(); const nb = cal.querySelector('[data-nav="' + nav.dataset.nav + '"]:not(:disabled)') || cal.querySelector('.cal-month.on'); if (nb) nb.focus({preventScroll: true}); return; }
   const mon = e.target.closest('[data-month]');
-  if (mon){ view = new Date(mon.dataset.month + '-01T00:00:00'); renderCal(); return; }
+  if (mon){ view = new Date(mon.dataset.month + '-01T00:00:00'); renderCal(); placeCal(); const mb = cal.querySelector('.cal-month.on'); if (mb) mb.focus({preventScroll: true}); return; }
   const day = e.target.closest('[data-date]');
   if (day){
     setDate(day.dataset.date);
     dateBtn.closest('.field').classList.remove('has-error');
-    openCal(false);
+    closeCalToButton();
     if (window.__draftSave) window.__draftSave();
   }
 });
@@ -1866,7 +1878,7 @@ document.addEventListener('click', (e) => {
   if (!e.target.isConnected) return; /* клик по кнопке, которую перерисовали (стрелки месяца) */
   if (!cal.contains(e.target) && e.target !== dateBtn) openCal(false);
 });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') openCal(false); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && cal.classList.contains('open')) closeCalToButton(); });
 noticket.addEventListener('change', () => {
   dateBtn.disabled = noticket.checked;
   if (noticket.checked){ setDate(''); openCal(false); }
