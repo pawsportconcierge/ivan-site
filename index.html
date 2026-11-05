@@ -217,15 +217,26 @@ textarea{resize:none;height:88px;overflow-y:auto}
 .date-btn:hover{border-color:var(--camel)}
 .date-btn:focus-visible{border-color:var(--camel);outline:2px solid var(--focus);outline-offset:2px}
 .date-btn:disabled{opacity:.5;cursor:default}
-.cal{display:none;position:absolute;z-index:20;top:calc(100% + 6px);left:0;width:280px;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:14px}
+/* 348px = 7 ячеек по 44px + 6 зазоров по 2px + поля 14px: зона тапа дня не меньше 44px.
+   На узких экранах календарь выходит на поля карточки (24px), чтобы удержать 44px. */
+.cal{display:none;position:absolute;z-index:20;top:calc(100% + 6px);left:0;width:348px;max-width:100%;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:14px}
+@media (max-width:479px){ .cal{left:-24px;right:-24px;width:auto;max-width:none;padding:12px 6px} .cal-grid{gap:1px} }
+.cal-months{display:flex;gap:4px;overflow-x:auto;margin:0 0 10px;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.cal-months::-webkit-scrollbar{display:none}
+.cal-month{flex:0 0 auto;min-height:44px;padding:0 12px;border:1px solid var(--line-strong);border-radius:999px;background:#fff;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--navy);cursor:pointer;touch-action:manipulation}
+.cal-month:hover{border-color:var(--camel)}
+.cal-month.on{background:var(--navy);color:var(--cream);border-color:var(--navy)}
+/* пока календарь открыт, мобильная CTA и кнопка WhatsApp не должны ложиться поверх дней */
+body.cal-open .sticky-cta.visible{display:none}
+body.cal-open .wa-float{opacity:0;pointer-events:none}
 .cal.open{display:block}
 .cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .cal-title{font-family:var(--serif);font-size:16px;color:var(--navy)}
-.cal-nav{background:none;border:1px solid var(--line-strong);border-radius:3px;width:28px;height:28px;cursor:pointer;color:var(--navy);font-size:14px}
+.cal-nav{background:none;border:1px solid var(--line-strong);border-radius:3px;width:44px;height:44px;cursor:pointer;color:var(--navy);font-size:16px;touch-action:manipulation}
 .cal-nav:hover{border-color:var(--camel)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
 .cal-dow{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--muted);padding:4px 0}
-.cal-day{border:none;background:none;font-family:var(--sans);font-size:13px;color:var(--ink);padding:7px 0;border-radius:3px;cursor:pointer}
+.cal-day{border:none;background:none;font-family:var(--sans);font-size:14px;color:var(--ink);padding:0;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:3px;cursor:pointer;touch-action:manipulation}
 .cal-day:hover:not(:disabled){background:var(--cream)}
 .cal-day:disabled{color:#C9C2B2;cursor:default}
 .cal-day.today{box-shadow:inset 0 0 0 1px var(--camel)}
@@ -1704,7 +1715,7 @@ function wireErrors(root){
 }
 wireErrors(document);
 
-addLeg.addEventListener('click', () => {
+function appendLeg(){
   const legs = legsWrap.querySelectorAll('.leg');
   const prevTo = legs[legs.length - 1].querySelector('.leg-to').value.trim();
   const el = document.createElement('div');
@@ -1718,7 +1729,12 @@ addLeg.addEventListener('click', () => {
   legsWrap.appendChild(el);
   wireErrors(el);
   updateLegState();
-  focusWithoutJump(el.querySelector(prevTo ? '.leg-to' : '.leg-from'));
+  return el;
+}
+addLeg.addEventListener('click', () => {
+  const el = appendLeg();
+  focusWithoutJump(el.querySelector(el.querySelector('.leg-from').value ? '.leg-to' : '.leg-from'));
+  if (window.__draftSave) window.__draftSave();
 });
 
 /* Обычный .focus() заставляет браузер подкрутить страницу к элементу, а из-за
@@ -1735,7 +1751,7 @@ function focusWithoutJump(el, block){
 }
 legsWrap.addEventListener('click', (e) => {
   const btn = e.target.closest('.remove-leg');
-  if (btn && legCount() > 1){ btn.closest('.leg').remove(); updateLegState(); }
+  if (btn && legCount() > 1){ btn.closest('.leg').remove(); updateLegState(); if (window.__draftSave) window.__draftSave(); }
 });
 function getLegs(){
   return Array.from(legsWrap.querySelectorAll('.leg')).map(leg => ({
@@ -1764,6 +1780,19 @@ const today = new Date(); today.setHours(0,0,0,0);
 let view = new Date(today.getFullYear(), today.getMonth(), 1);
 
 function iso(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+/* Строка месяцев над сеткой: 12 вперёд от текущего, тап переключает сетку;
+   стрелки остаются. Активный месяц подкручивается в середину строки. */
+function renderMonths(){
+  let html = '<div class="cal-months" aria-label="Jump to month">';
+  for (let k = 0; k < 12; k++){
+    const dt = new Date(today.getFullYear(), today.getMonth() + k, 1);
+    const on = dt.getFullYear() === view.getFullYear() && dt.getMonth() === view.getMonth();
+    html += '<button type="button" class="cal-month' + (on ? ' on' : '') + '" data-month="' + iso(dt).slice(0, 7) + '"' +
+      ' aria-label="' + MONTHS[dt.getMonth()] + ' ' + dt.getFullYear() + '" aria-pressed="' + on + '">' +
+      MONTHS[dt.getMonth()].slice(0, 3) + (dt.getMonth() === 0 ? ' \u2019' + String(dt.getFullYear()).slice(2) : '') + '</button>';
+  }
+  return html + '</div>';
+}
 function renderCal(){
   const y = view.getFullYear(), m = view.getMonth();
   const first = (new Date(y, m, 1).getDay() + 6) % 7; /* Monday-first */
@@ -1772,7 +1801,7 @@ function renderCal(){
   let html = '<div class="cal-head">' +
     '<button type="button" class="cal-nav" data-nav="-1" aria-label="Previous month"' + (canPrev ? '' : ' disabled') + '>&#8249;</button>' +
     '<span class="cal-title">' + MONTHS[m] + ' ' + y + '</span>' +
-    '<button type="button" class="cal-nav" data-nav="1" aria-label="Next month">&#8250;</button></div><div class="cal-grid">';
+    '<button type="button" class="cal-nav" data-nav="1" aria-label="Next month">&#8250;</button></div>' + renderMonths() + '<div class="cal-grid">';
   DOW.forEach(d => html += '<span class="cal-dow">' + d + '</span>');
   for (let i = 0; i < first; i++) html += '<span></span>';
   for (let d = 1; d <= days; d++){
@@ -1782,24 +1811,55 @@ function renderCal(){
     html += '<button type="button" class="' + cls + '" data-date="' + dIso + '"' + (dt < today ? ' disabled' : '') + '>' + d + '</button>';
   }
   cal.innerHTML = html + '</div>';
+  const strip = cal.querySelector('.cal-months'), chip = cal.querySelector('.cal-month.on');
+  if (strip && chip) strip.scrollLeft = chip.offsetLeft - (strip.clientWidth - chip.offsetWidth) / 2;
+}
+/* Фиксированные куки-баннер (z 70) и мобильная CTA (z 50) лежат выше календаря:
+   его z-index заперт в stacking context карточки (.file с filter и маской,
+   .file-body с transform), поднять нельзя. Поэтому на время открытия CTA
+   прячем (body.cal-open), а страницу докручиваем так, чтобы весь календарь
+   был выше баннера — иначе тап по дню уходит в баннер. */
+function scrollInstant(dy){
+  if (!dy) return;
+  const root = document.documentElement, prev = root.style.scrollBehavior;
+  root.style.scrollBehavior = 'auto';
+  window.scrollBy(0, dy);
+  root.style.scrollBehavior = prev;
+}
+function ensureCalVisible(){
+  const r = cal.getBoundingClientRect();
+  let limit = window.innerHeight;
+  const ck = document.getElementById('cookies');
+  if (ck && ck.classList.contains('on')) limit = Math.min(limit, ck.getBoundingClientRect().top);
+  if (r.bottom > limit - 8) scrollInstant(Math.ceil(r.bottom - limit + 8));
+  const r2 = cal.getBoundingClientRect();
+  if (r2.top < 8) scrollInstant(Math.floor(r2.top - 8));
 }
 function openCal(open){
   cal.classList.toggle('open', open);
   dateBtn.setAttribute('aria-expanded', open);
-  if (open) renderCal();
+  document.body.classList.toggle('cal-open', open);
+  if (open){ renderCal(); ensureCalVisible(); }
+}
+function setDate(isoDate){
+  dateISO.value = isoDate || '';
+  if (!isoDate){ dateBtn.textContent = 'Select a date'; dateBtn.classList.remove('set'); return; }
+  const d = new Date(isoDate + 'T00:00:00');
+  dateBtn.textContent = d.toLocaleDateString('en-US', {day:'numeric', month:'short', year:'numeric'});
+  dateBtn.classList.add('set');
 }
 dateBtn.addEventListener('click', () => openCal(!cal.classList.contains('open')));
 cal.addEventListener('click', (e) => {
   const nav = e.target.closest('[data-nav]');
   if (nav){ view = new Date(view.getFullYear(), view.getMonth() + Number(nav.dataset.nav), 1); renderCal(); return; }
+  const mon = e.target.closest('[data-month]');
+  if (mon){ view = new Date(mon.dataset.month + '-01T00:00:00'); renderCal(); return; }
   const day = e.target.closest('[data-date]');
   if (day){
-    dateISO.value = day.dataset.date;
-    const d = new Date(day.dataset.date + 'T00:00:00');
-    dateBtn.textContent = d.toLocaleDateString('en-US', {day:'numeric', month:'short', year:'numeric'});
-    dateBtn.classList.add('set');
+    setDate(day.dataset.date);
     dateBtn.closest('.field').classList.remove('has-error');
     openCal(false);
+    if (window.__draftSave) window.__draftSave();
   }
 });
 document.addEventListener('click', (e) => {
@@ -1809,7 +1869,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') openCal(false); });
 noticket.addEventListener('change', () => {
   dateBtn.disabled = noticket.checked;
-  if (noticket.checked){ dateISO.value = ''; dateBtn.textContent = 'Select a date'; dateBtn.classList.remove('set'); openCal(false); }
+  if (noticket.checked){ setDate(''); openCal(false); }
 });
 
 /* ---- phone: country code + national number ----
@@ -2101,6 +2161,8 @@ form.addEventListener('submit', async (e) => {
     } else {
       console.log('Lead (no endpoint set):', data);
     }
+    /* заявка ушла — черновик в localStorage больше не нужен */
+    if (window.__draftClear) window.__draftClear();
 
     let days = null;
     if (data.departure_date){
@@ -2146,13 +2208,12 @@ form.addEventListener('submit', async (e) => {
       clearedBox.classList.remove('show');
       formSiblingsInert(false);
       form.reset();
+      if (window.__draftClear) window.__draftClear();
       /* маршрут: оставить один пустой отрезок */
       var lgs = legsWrap.querySelectorAll('.leg');
       lgs.forEach(function(l, i){ if (i > 0) l.remove(); });
       /* дата */
-      dateISO.value = '';
-      dateBtn.textContent = 'Select a date';
-      dateBtn.classList.remove('set');
+      setDate('');
       /* в режиме OTHER SERVICES эта панель отключена целиком — не включаем обратно */
       if (!window.__elseMode) dateBtn.disabled = false;
       /* ошибки и кнопка */
@@ -2379,6 +2440,93 @@ if (window.matchMedia('(max-width: 920px)').matches){
 </script>
 
 
+
+<script>
+/* ---- черновик формы: localStorage['pw-draft'] ----
+   Всё, что ввёл пользователь (обе вкладки, отрезки маршрута, дата, плитки
+   lb|kg и yrs|mo, код страны, мессенджеры, телефон и email — это его собственный
+   черновик в его браузере), пишется с меткой времени при каждом вводе и
+   восстанавливается при загрузке, если черновику меньше 24 часов. После успешной
+   отправки и по «Submit another request» черновик стирается. 'pw-consent' не трогаем. */
+(function(){
+  var KEY = 'pw-draft', TTL = 24 * 60 * 60 * 1000;
+  var form = document.getElementById('request');
+  if (!form) return;
+  var store;
+  try { store = window.localStorage; store.getItem(KEY); } catch(e){ return; }
+  /* не сохраняем: honeypot, скрытые служебные поля (utm, referrer — их ставит
+     страница), кнопки; отрезки маршрута и дата идут отдельными ключами */
+  function skip(el){
+    if (el.tagName === 'BUTTON' || el.type === 'button' || el.type === 'submit' || el.type === 'hidden') return true;
+    if (el.name === '_gotcha' || (!el.name && !el.id)) return true;
+    return el.classList.contains('leg-from') || el.classList.contains('leg-to');
+  }
+  function controls(){ return Array.prototype.filter.call(form.querySelectorAll('input, select, textarea'), function(el){ return !skip(el); }); }
+  function collect(){
+    var o = { t: Date.now(), mode: !!window.__elseMode, legs: getLegs(), departure_date: dateISO.value, f: {} };
+    controls().forEach(function(el){
+      if (el.type === 'checkbox') o.f[el.name + '=' + el.value] = el.checked;
+      else if (el.type === 'radio'){ if (el.checked) o.f[el.name] = el.value; }
+      else o.f[el.id || el.name] = el.value;
+    });
+    return o;
+  }
+  /* значения по умолчанию (единицы, код страны US) черновиком не считаются */
+  function isEmpty(o){
+    if (o.departure_date || o.legs.some(function(l){ return l.from || l.to; })) return false;
+    return !Object.keys(o.f).some(function(k){
+      var v = o.f[k];
+      if (v === true) return true;
+      if (typeof v !== 'string' || !v.trim()) return false;
+      if (/^(weight_unit|age_unit|age_unit2)$/.test(k)) return false;
+      if (k === 'phone-cc' && v === 'US') return false;
+      return true;
+    });
+  }
+  var timer = null;
+  function save(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      try { var o = collect(); if (isEmpty(o)) store.removeItem(KEY); else store.setItem(KEY, JSON.stringify(o)); } catch(e){}
+    }, 250);
+  }
+  function clear(){ clearTimeout(timer); try { store.removeItem(KEY); } catch(e){} }
+  window.__draftSave = save;
+  window.__draftClear = clear;
+
+  function restore(){
+    var raw = null;
+    try { raw = store.getItem(KEY); } catch(e){ return; }
+    if (!raw) return;
+    var o = null;
+    try { o = JSON.parse(raw); } catch(e){}
+    if (!o || typeof o.t !== 'number' || Date.now() - o.t > TTL){ clear(); return; }
+    if (typeof window.__setFormMode === 'function') window.__setFormMode(!!o.mode);
+    var legs = Array.isArray(o.legs) ? o.legs : [];
+    while (legCount() < legs.length && legCount() < MAX_LEGS) appendLeg();
+    Array.prototype.forEach.call(legsWrap.querySelectorAll('.leg'), function(leg, i){
+      var l = legs[i] || {};
+      leg.querySelector('.leg-from').value = l.from || '';
+      leg.querySelector('.leg-to').value = l.to || '';
+    });
+    var f = o.f || {};
+    controls().forEach(function(el){
+      if (el.type === 'checkbox'){ var k = el.name + '=' + el.value; if (k in f) el.checked = !!f[k]; }
+      else if (el.type === 'radio'){ if (el.name in f) el.checked = (el.value === f[el.name]); }
+      else { var key = el.id || el.name; if (key in f && typeof f[key] === 'string') el.value = f[key]; }
+    });
+    /* код страны восстановлен — значит, «тронут»: на pageshow его не сбрасывать в US */
+    var cc = document.getElementById('phone-cc');
+    if (cc && ('phone-cc' in f)) cc.dataset.touched = '1';
+    var nt = document.getElementById('noticket');
+    if (nt && nt.checked && !window.__elseMode) dateBtn.disabled = true;
+    setDate(nt && nt.checked ? '' : (o.departure_date || ''));
+  }
+  restore();
+  form.addEventListener('input', save);
+  form.addEventListener('change', save);
+})();
+</script>
 
 <script>
 (function(){
