@@ -209,7 +209,7 @@ textarea{resize:none;height:88px;overflow-y:auto}
 .remove-leg{background:none;border:1px solid var(--line-strong);border-radius:3px;width:32px;height:41px;cursor:pointer;color:var(--muted);font-size:15px;line-height:1}
 .remove-leg:hover{border-color:var(--oxblood);color:var(--oxblood)}
 .leg:first-child .remove-leg{visibility:hidden}
-.add-leg{display:inline-block;margin-top:0;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
+.add-leg{display:inline-flex;align-items:center;min-height:44px;margin:-15px 0 -14px;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
 .add-leg:hover{color:var(--navy)}
 .date-btn{width:100%;text-align:left;font-family:var(--sans);font-size:15px;color:var(--muted);padding:11px 12px;min-height:44px;border:1px solid var(--line-strong);border-radius:3px;background:#fff;cursor:pointer;position:relative;transition:border-color .15s}
 .date-btn::after{content:"\25BE";position:absolute;right:12px;color:var(--camel)}
@@ -223,7 +223,8 @@ textarea{resize:none;height:88px;overflow-y:auto}
    следующего блока, на телефоне — куки-баннер (z 70) и sticky-CTA (z 50). z-index 80 —
    выше всех фиксированных слоёв страницы. 348px = 7 ячеек по 44px + зазоры + поля;
    на узком экране ширина ужимается до viewport минус 16px (см. placeCal). */
-.cal{display:none;position:absolute;z-index:80;width:348px;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:14px}
+.cal{display:none;position:absolute;z-index:80;width:348px;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:14px;overscroll-behavior:contain}
+.cal-top{position:sticky;top:0;z-index:1;background:var(--paper);margin:-14px -14px 0;padding:14px 14px 0}
 .cal-months{display:flex;gap:4px;overflow-x:auto;margin:0 0 10px;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .cal-months::-webkit-scrollbar{display:none}
 .cal-month{flex:0 0 auto;min-height:44px;padding:0 12px;border:1px solid var(--line-strong);border-radius:999px;background:#fff;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--navy);cursor:pointer;touch-action:manipulation}
@@ -242,7 +243,8 @@ textarea{resize:none;height:88px;overflow-y:auto}
 .cal-day:disabled{color:#C9C2B2;cursor:default}
 .cal-day.today{box-shadow:inset 0 0 0 1px var(--camel)}
 .cal-day.sel{background:var(--navy);color:var(--cream)}
-.check{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--muted)}
+.check{display:flex;align-items:center;gap:8px;margin:-4px 0 -12px;font-size:13px;color:var(--muted)}
+.check label{display:flex;align-items:center;min-height:44px;cursor:pointer}
 .check input{width:15px;height:15px;accent-color:var(--navy)}
 .channels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .chan{position:relative;display:block;cursor:pointer}
@@ -257,7 +259,8 @@ textarea{resize:none;height:88px;overflow-y:auto}
 .unit-field{position:relative}
 .unit-field input{padding-right:66px}
 .unit-toggle{position:absolute;top:50%;right:5px;transform:translateY(-50%);display:flex;gap:2px}
-.unit-toggle .chan .tile{padding:4px 0;width:28px;font-size:11px;line-height:1.2;letter-spacing:0}
+.unit-toggle .chan{display:flex;align-items:center;min-height:44px}
+.unit-toggle .chan .tile{padding:4px 0;width:28px;min-height:0;font-size:11px;line-height:1.2;letter-spacing:0}
 /* ── блок «Your pet» — две строки: ≥652px [тип | имя | порода] и [вес | возраст]
    (во вкладке Other services — [город | возраст]); ≤651px порода уходит на свою
    строку: [тип | имя], [порода], [вес | возраст]. Замер: test-form-fields.py ── */
@@ -269,7 +272,7 @@ textarea{resize:none;height:88px;overflow-y:auto}
   .pet-row-a .pet-breed{grid-column:1/-1}
 }
 /* уже 360px ячейка веса (≈124px) не вмещает «Weight» рядом с плитками — отдаём ей больше */
-@media (max-width:359px){ .pet-row-b{grid-template-columns:1.1fr .9fr} }
+@media (max-width:374px){ .pet-row-b{grid-template-columns:1fr} }
 /* ── телефон: своя строка во всю ширину под именем. Селект кода страны
    (флаг + код) компактный — ширину задаёт самая длинная опция («+1 876»),
    padding минимальный; min-width:0 у номера, чтобы грид не раздувался. ── */
@@ -549,7 +552,7 @@ footer{background:var(--navy-deep);color:#B3BDB0;padding:44px 0}
    устройствах hover нет, поэтому вкладка была там нерабочей.
    ВНИМАНИЕ: правило .chan .tile объявлено дважды (см. выше по файлу),
    это второе перекрывает первое. Дубль не трогали — отдельная задача. */
-.chan .tile{display:block;width:100%;border:1px solid var(--line-strong);border-radius:3px;background:#fff;padding:11px 2px;text-align:center;font-family:var(--sans);font-size:12.5px;font-weight:500;letter-spacing:.01em;color:var(--muted);transition:border-color .15s,background-color .15s,color .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chan .tile{display:block;width:100%;min-height:44px;border:1px solid var(--line-strong);border-radius:3px;background:#fff;padding:11px 2px;text-align:center;font-family:var(--sans);font-size:12.5px;font-weight:500;letter-spacing:.01em;color:var(--muted);transition:border-color .15s,background-color .15s,color .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:560px){.channels{grid-template-columns:repeat(2,1fr)}}
 
 /* --- прямоугольный штамп CLEARED на полароиде --- */
@@ -621,7 +624,7 @@ footer{background:var(--navy-deep);color:#B3BDB0;padding:44px 0}
 
 /* --- вкладки формы + рукописная стрелка --- */
 .file-tabs{display:flex;align-items:flex-end;gap:6px;padding:14px 24px 0;border-bottom:1px solid var(--line);background:#F3EDDF;border-radius:6px 6px 0 0}
-.ftab{font-family:var(--mono);font-size:11px;letter-spacing:2px;padding:11px 18px;background:#EAE2CF;border:1px solid var(--line);border-bottom:none;border-radius:6px 6px 0 0;color:#8b8578;cursor:pointer;position:relative;top:1px;transition:background .15s,color .15s}
+.ftab{font-family:var(--mono);font-size:11px;letter-spacing:2px;padding:11px 18px;min-height:44px;display:inline-flex;align-items:center;background:#EAE2CF;border:1px solid var(--line);border-bottom:none;border-radius:6px 6px 0 0;color:#8b8578;cursor:pointer;position:relative;top:1px;transition:background .15s,color .15s}
 .ftab:hover{color:#6E3B14}
 .ftab.active{background:var(--paper);color:#6E3B14;font-weight:500}
 .ft-brand{margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--oxblood);padding-bottom:12px}
@@ -1802,10 +1805,10 @@ function renderCal(){
   const first = (new Date(y, m, 1).getDay() + 6) % 7; /* Monday-first */
   const days = new Date(y, m + 1, 0).getDate();
   const canPrev = new Date(y, m, 1) > today;
-  let html = '<div class="cal-head">' +
+  let html = '<div class="cal-top"><div class="cal-head">' +
     '<button type="button" class="cal-nav" data-nav="-1" aria-label="Previous month"' + (canPrev ? '' : ' disabled') + '>&#8249;</button>' +
     '<span class="cal-title">' + MONTHS[m] + ' ' + y + '</span>' +
-    '<button type="button" class="cal-nav" data-nav="1" aria-label="Next month">&#8250;</button></div>' + renderMonths() + '<div class="cal-grid">';
+    '<button type="button" class="cal-nav" data-nav="1" aria-label="Next month">&#8250;</button></div>' + renderMonths() + '</div><div class="cal-grid">';
   DOW.forEach(d => html += '<span class="cal-dow">' + d + '</span>');
   for (let i = 0; i < first; i++) html += '<span></span>';
   for (let d = 1; d <= days; d++){
@@ -1824,14 +1827,36 @@ function renderCal(){
 function placeCal(){
   // body{zoom} (>=1780px): getBoundingClientRect/scrollX/Y отдают пиксели viewport,
   // а left/top потомка body считаются в увеличенных пикселях. k — viewport-px на 1 layout-px.
+  // k — от самого #cal (под <body>, без transform; openCal сначала показывает его, потом зовёт placeCal),
+  // не от кнопки: карточка .file стоит в perspective, rect кнопки искажён на ~1%.
   const r = dateBtn.getBoundingClientRect();
-  const k = dateBtn.offsetWidth ? r.width / dateBtn.offsetWidth : 1;
+  const k = cal.offsetWidth ? cal.getBoundingClientRect().width / cal.offsetWidth : (parseFloat(getComputedStyle(document.body).zoom) || 1);
   const vw = document.documentElement.clientWidth / k;
   const w = Math.min(348, vw - 16);
   const left = Math.max(8, Math.min(r.left / k, vw - w - 8));
   cal.style.width = w + 'px';
   cal.style.left = Math.round(left + window.scrollX / k) + 'px';
-  cal.style.top = Math.round((r.bottom + window.scrollY) / k + 6) + 'px';
+  // Высота: по умолчанию под кнопкой. Не влезает под кнопкой, а над ней места больше — над кнопкой.
+  // Не влезает ни там, ни там — большая сторона, max-height и прокрутка внутри (шапка и месяцы липкие),
+  // но не ниже минимума: шапка + месяцы + дни недели + две строки дней.
+  cal.style.maxHeight = ''; cal.style.overflowY = '';
+  const natural = cal.offsetHeight;
+  const top = cal.querySelector('.cal-top'), dow = cal.querySelector('.cal-dow'), day = cal.querySelector('.cal-day');
+  const minH = (top ? top.offsetHeight : 0) + (dow ? dow.offsetHeight + 2 : 0) + 2 * ((day ? day.offsetHeight : 44) + 2) + 2;
+  const vh = window.innerHeight / k;
+  const below = Math.floor(vh - r.bottom / k - 6 - 8);
+  const above = Math.floor(r.top / k - 6 - 8);
+  let place = 'below', avail = below;
+  if (natural > below && above > below){ place = 'above'; avail = above; }
+  let h = natural;
+  if (natural > avail){
+    if (avail >= minH) h = avail;
+    else { place = 'over'; h = Math.min(minH, Math.floor(vh - 16)); } // минимум не влезает ни сверху, ни снизу — накрыть кнопку, прижать к краю экрана
+    cal.style.maxHeight = h + 'px'; cal.style.overflowY = 'auto';
+  }
+  cal.dataset.place = place;
+  let topV = place === 'below' ? r.bottom / k + 6 : place === 'above' ? r.top / k - h - 6 : Math.max(8, Math.min(r.bottom / k + 6, vh - h - 8));
+  cal.style.top = Math.round(topV + window.scrollY / k) + 'px';
 }
 function calButtons(){ return Array.prototype.filter.call(cal.querySelectorAll('button'), b => !b.disabled); }
 function openCal(open){
