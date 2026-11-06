@@ -336,16 +336,22 @@ textarea{resize:none;height:88px;overflow-y:auto}
 .form-fail{display:none;margin-top:12px;padding:12px;border:1px solid var(--oxblood);border-radius:3px;font-size:13px;color:var(--oxblood);background:#fff}
 
 /* cleared overlay + receipt */
-.cleared{position:absolute;inset:0;background:rgba(251,248,242,.97);border-radius:6px;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;z-index:5;overflow:auto}
+/* overflow-x hidden: печать стартует в scale(2.1) (cl-stamp) и на 320–390 на полсекунды
+   даёт горизонтальную прокрутку внутри квитанции (замер: +28px на 320, +9 на 390) */
+.cleared{position:absolute;inset:0;background:var(--paper);border-radius:6px;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;z-index:5;overflow:hidden auto}
 .cleared.show{display:flex}
+/* форма под квитанцией скрыта целиком: visibility (здесь) + aria-hidden и inert (JS);
+   фон квитанции непрозрачный — поля не просвечивают */
+.file.is-cleared > :not(.cleared){visibility:hidden}
 .stamp-cleared{transform:rotate(-8deg);border:3px solid var(--oxblood);color:var(--oxblood);font-family:var(--mono);font-weight:500;font-size:24px;letter-spacing:6px;padding:9px 24px;margin-bottom:20px;animation:slam .35s cubic-bezier(.2,1.6,.4,1)}
 @keyframes slam{0%{transform:rotate(-8deg) scale(2.4);opacity:0}100%{transform:rotate(-8deg) scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){.stamp-cleared{animation:none}}
 .cleared h3{font-family:var(--serif);font-weight:400;font-size:23px;color:var(--navy);margin-bottom:14px}
 .receipt{width:100%;max-width:340px;text-align:left;border-top:1px solid var(--line);margin-bottom:14px}
 .receipt div{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
-.receipt span{font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase;padding-top:2px}
+.receipt div > span{font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase;padding-top:2px} /* подпись строки; span.nowrap внутри значения не задевает */
 .receipt b{font-weight:500;color:var(--navy);text-align:right;max-width:60%}
+.receipt .nowrap{white-space:nowrap} /* номер телефона не рвётся по дефису */
 .cleared p{font-size:13px;color:var(--muted);max-width:36ch}
 
 /* ---------- trust strip ---------- */
@@ -1368,7 +1374,8 @@ body{background:#FFFFFF}
         <p class="alt-channel">Prefer to just message? <a href="https://wa.me/13059540956?text=Hi%2C%20I%20need%20help%20flying%20with%20my%20pet" data-track="whatsapp" target="_blank" rel="noopener">WhatsApp the desk</a></p>
       </div>
       <!-- role=dialog без aria-modal: оверлей перекрывает только карточку формы, а не
-           страницу. Форма под ним получает inert из JS, фокус переводится сюда. -->
+           страницу. Форма под ним скрывается (.is-cleared → visibility:hidden, aria-hidden,
+           inert из JS), фокус переводится сюда. -->
       <div class="cleared" id="cleared" role="dialog" aria-labelledby="cleared-title" tabindex="-1">
         <span class="cleared-seal" aria-hidden="true"></span>
         <h3 id="cleared-title">Request received.</h3>
@@ -1378,7 +1385,7 @@ body{background:#FFFFFF}
           <div style="--i:2"><span>Pet</span><b id="r-pet">—</b></div>
           <div style="--i:3"><span>Reply via</span><b id="r-channel">—</b></div>
         </div>
-        <p id="cleared-msg">Your concierge will reach you within 15 minutes, 8am–10pm ET.</p>
+        <p id="cleared-msg">Your concierge will reach you soon. We&rsquo;re on 8am–10pm ET.</p>
         <button type="button" class="again" id="again-btn">Submit another request &#8594;</button>
       </div>
     </form>
@@ -2025,7 +2032,13 @@ function parseIntlPhone(v){
   }
   return null;
 }
-function phoneDigits(){ return phoneNum.value.replace(/\D/g, ''); }
+/* +1: 11 цифр с ведущей единицей — это код страны («1 (305) 555-0123», «1 305…»), отбрасываем;
+   «+1 305…» разбирает parseIntlPhone */
+function nanpStrip(d){
+  var c = COUNTRY_BY_ISO[phoneCC.value];
+  return (c && c.dial === '1' && d.length === 11 && d.charAt(0) === '1') ? d.slice(1) : d;
+}
+function phoneDigits(){ return nanpStrip(phoneNum.value.replace(/\D/g, '')); }
 /* E.164 + ISO-2; display — для квитанции */
 function phoneParts(){
   var c = COUNTRY_BY_ISO[phoneCC.value];
@@ -2036,12 +2049,32 @@ function phoneParts(){
     : '+' + c.dial + ' ' + n;
   return {e164: '+' + c.dial + n, iso: c.iso, display: disp};
 }
-/* обязательны и код, и номер: 6–14 цифр, всего с кодом не больше 15 (E.164) */
+/* минимальная длина национального номера по стране — минимум possible_lengths из
+   libphonenumber-js 1.11.5 (metadata.min.json). Здесь только страны с минимумом ≠ 6
+   и не из NANP: нет в списке → 6 цифр, +1 → ровно 10 (см. phoneValid).
+   Как пересобрать — coworkers/reports/receipt-2026-11-06.md */
+const PHONE_MIN = {};
+'MX10,CO10,BR8,AR10,ES9,GB7,DE4,FR9,PT9,AF9,DZ8,AO9,AM8,AW7,AU5,AT4,AZ9,BH8,BE8,BZ7,BJ8,BT7,BO8,BA8,BW7,BN7,BF8,BI8,KH8,CM8,CV7,CF8,TD8,CL9,CN7,KM7,CG9,CD7,CK5,CR8,CI10,CW7,CY8,CZ9,DK8,DJ8,EC8,EG8,SV7,GQ9,ER7,EE7,SZ8,ET9,FK5,FJ7,FI5,AX5,GF9,GA7,GM7,GE9,GH8,GI8,GR10,GP9,BL9,MF9,GT8,GG7,GN8,GW7,GY7,HT8,HN8,HK5,HU8,IS7,IN8,ID7,IR4,IQ8,IE7,IM10,IL7,JP8,JE10,JO8,KZ10,KE7,KI5,KP8,KR5,KW7,KG9,LA8,LV8,LB7,LS8,LR7,LY9,LI7,LT8,LU4,MO7,MG9,MW7,MY8,MV7,ML8,MT8,MH7,MQ9,MR8,MU7,YT9,FM7,MD8,MC8,MN8,ME8,MA9,EH9,MZ8,NA8,NR7,NP8,NL5,BQ7,NZ5,NI8,NE8,NG7,NU4,MK8,NO5,SJ5,OM7,PK8,PW7,PS8,PA7,PG7,PE8,QA7,RE9,RU10,RW8,SH4,WS5,SM8,ST7,SA9,SN9,SC7,SL8,SG8,SI5,SB5,ZA5,SS9,LK9,SD9,CH9,SY8,TW7,TJ9,TZ9,TH8,TL7,TG8,TK4,TO5,TN8,TR7,TM8,TV5,UG9,UA9,AE5,UZ9,VU5,VE10,VN7,YE7,ZM9,ZW5'.split(',').forEach(function(s){ PHONE_MIN[s.slice(0, 2)] = parseInt(s.slice(2), 10); });
+function phoneMinLen(c){ return PHONE_MIN[c.iso] || 6; }
+/* обязательны и код, и номер. +1 (США, Канада, NANP) — ровно 10 цифр; остальные —
+   не меньше минимума по стране, не больше 14, всего с кодом не больше 15 (E.164) */
 function phoneValid(){
   var c = COUNTRY_BY_ISO[phoneCC.value];
   var n = phoneDigits();
-  return !!c && n.length >= 6 && n.length <= 14 && (c.dial.length + n.length) <= 15;
+  if (!c) return false;
+  if (c.dial === '1') return n.length === 10;
+  return n.length >= phoneMinLen(c) && n.length <= 14 && (c.dial.length + n.length) <= 15;
 }
+/* текст ошибки — под выбранную страну; к полю он привязан через aria-describedby (wireErrors) */
+const phoneErr = phoneNum.closest('.field').querySelector(':scope > .err-msg');
+function syncPhoneErr(){
+  var c = COUNTRY_BY_ISO[phoneCC.value];
+  if (!c || !phoneErr) return;
+  phoneErr.textContent = c.dial === '1'
+    ? 'Enter a 10-digit number, area code first.'
+    : 'Enter at least ' + phoneMinLen(c) + ' digits for ' + c.name + '.';
+}
+syncPhoneErr();
 phoneNum.addEventListener('beforeinput', function(e){
   if (e.inputType === 'insertText' && e.data && !/^[\d+\s().-]+$/.test(e.data)) e.preventDefault();
 });
@@ -2049,12 +2082,12 @@ phoneNum.addEventListener('input', function(){
   var v = phoneNum.value;
   if (/^\s*(\+|00)/.test(v)){
     var p = parseIntlPhone(v);
-    if (p){ phoneCC.value = p.iso; phoneCC.dataset.touched = '1'; phoneNum.value = p.national; return; }
+    if (p){ phoneCC.value = p.iso; phoneCC.dataset.touched = '1'; phoneNum.value = p.national; syncPhoneErr(); return; }
   }
-  var d = v.replace(/\D/g, '');
+  var d = nanpStrip(v.replace(/\D/g, ''));
   if (d !== v) phoneNum.value = d;
 });
-phoneCC.addEventListener('change', function(){ phoneCC.closest('.field').classList.remove('has-error'); });
+phoneCC.addEventListener('change', function(){ phoneCC.closest('.field').classList.remove('has-error'); syncPhoneErr(); });
 
 /* ---- числовые поля с единицей: вес (0.5–200, lb|kg) и возраст
    (0.1–30 yrs | 1–24 mo, в обеих вкладках). Только цифры и одна точка,
@@ -2127,7 +2160,7 @@ form.addEventListener('submit', async (e) => {
   }
   need.push({el: document.getElementById('first_name')});
   need.push({el: document.getElementById('last_name')});
-  need.push({el: phoneNum, ok: phoneValid});
+  need.push({el: phoneNum, ok: function(){ syncPhoneErr(); return phoneValid(); }});
   if (!window.__elseMode) need.push({el: weightEl, ok: weightValid});
   need.push({el: ageActive(), ok: ageValid});
   need.push({el: document.getElementById('email'), ok: () => document.getElementById('email').value.includes('@')});
@@ -2251,25 +2284,36 @@ form.addEventListener('submit', async (e) => {
     }
 
     document.getElementById('r-name').textContent = data.name;
+    /* в квитанции дата («Sep 25, 2027») и пары «10 kg» / «3 yrs» не рвутся по строкам */
+    const nbsp = function(s){ return String(s || '').replace(/ /g, '\u00a0'); };
     document.getElementById('r-route').textContent = window.__elseMode
       ? (data.services || 'Concierge request')
-      : chain.join(' \u2192 ') + (data.departure_date ? ' \u00b7 ' + dateBtn.textContent : ' \u00b7 no ticket yet');
+      : chain.join(' \u2192 ') + (data.departure_date ? ' \u00b7 ' + nbsp(dateBtn.textContent) : ' \u00b7 no ticket yet');
     /* поля неактивной вкладки теперь disabled и не попадают в FormData — берём
        питомца из той вкладки, которую пользователь реально заполнял */
     const petType = window.__elseMode ? data.pet2 : data.pet;
     const petBreed = window.__elseMode ? data.breed2 : data.breed;
     document.getElementById('r-pet').textContent =
-      petLine(data.pet_name, [petType, petBreed, data.weight, data.age]) || '\u2014';
-    document.getElementById('r-channel').textContent = data.channel + ' \u00b7 ' + phoneInfo.display;
+      petLine(data.pet_name, [petType, petBreed, nbsp(data.weight), nbsp(data.age)]) || '\u2014';
+    var rCh = document.getElementById('r-channel');
+    rCh.textContent = data.channel + ' \u00b7 ';
+    var rPhone = document.createElement('span'); rPhone.className = 'nowrap'; rPhone.textContent = phoneInfo.display;
+    rCh.appendChild(rPhone);
+    /* без обещания срока ответа; канал — выбранные мессенджеры, иначе «by phone or email»
+       (в заявку и в строку Reply via при этом по-прежнему уходит «Phone & Email») */
     document.getElementById('cleared-msg').textContent =
-      'Your concierge will reach you on ' + data.channel + ' within 15 minutes, 8am\u201310pm ET.';
-    /* Оверлей перекрывает карточку формы — делаем содержимое под ним inert,
-       иначе оно остаётся в табуляции, и переводим фокус в диалог. */
+      'Your concierge will reach you ' + (_chs.length ? 'on ' + data.channel : 'by phone or email') +
+      ' soon. We\u2019re on 8am\u201310pm ET.';
+    /* Оверлей перекрывает карточку формы — содержимое под ним скрываем
+       (.is-cleared → visibility:hidden, aria-hidden, inert, иначе оно остаётся
+       в табуляции) и переводим фокус в диалог. */
     const clearedBox = document.getElementById('cleared');
     const formSiblingsInert = function(on){
+      form.classList.toggle('is-cleared', on);
       Array.prototype.forEach.call(form.children, function(child){
         if (child === clearedBox) return;
-        if (on) child.setAttribute('inert', ''); else child.removeAttribute('inert');
+        if (on){ child.setAttribute('inert', ''); child.setAttribute('aria-hidden', 'true'); }
+        else { child.removeAttribute('inert'); child.removeAttribute('aria-hidden'); }
       });
     };
     clearedBox.classList.add('show');
